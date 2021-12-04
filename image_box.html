@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">  
+	<head>
+		<title>3D Image Box</title>
+		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+		<base href="./">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="./styles/main.css">
+	</head>
+	<body>
+		<div class="top">
+		    <a href="https://xrstory.io/free-tools"><img class="logo" src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150" ></a>
+    		<h2>3D Image Box</h2>
+
+    		<button class="popup-button" onclick="openSettings()">Settings</button>
+            <button class="popup-button" onclick="openExport()">Export</button>
+            <button class="popup-button" id="shot" title="With this button you can get a 2D screenshot of the current view.">Take Screenshot</button>
+    	</div> 	
+    	
+        <div class="form-popup" id="settings">
+            <h2 class="popup-header">Settings</h2>
+            <button class="close-button" type="button" onclick="closeSettings()">X</button>
+  
+            <button style="display:block;width:120px; height:30px;" onclick="document.getElementById('texture').click()" title="Press to load your image/logo.">Load an image</button>
+            <input type='file' id="texture" accept=".jpg,.png,.gif" style="display:none"> 
+     
+            <p>Apply image to what sides?</p>
+            <table width="100%">
+                <tr>        
+                    <td width="(100/x)%">
+                        <label><input id="north" name="side" type="checkbox" checked/>North</label>
+                    </td>
+                    <td width="(100/x)%">
+                        <label><input id="south" name="side" type="checkbox" checked/>South</label>
+                    </td>
+                    <td width="(100/x)%">
+                        <label><input id="east" name="side" type="checkbox" checked/>East</label>
+                    </td>
+                    <td width="(100/x)%">
+                        <label><input id="west" name="side" type="checkbox" checked/>West</label>
+                    </td>
+                    <td width="(100/x)%">
+                        <label><input id="top" name="side" type="checkbox" checked/>Top</label>
+                    </td>
+                    <td width="(100/x)%">
+                        <label><input id="bottom" name="side" type="checkbox" checked/>bottom</label>
+                    </td>
+                </tr>
+            </table> 
+            <label><input id="double" name="side" type="checkbox"/>Image on "inside" also?</label> 
+            <label><input id="transparent" name="transparent" type="checkbox"/>Transparency?</label><br>
+            <label>Color for areas without material:<input id="color" value="#888888" data-jscolor="{}"/></label>
+            
+            <br><br>
+            <label right>Screen background color: <br><input id="screenColor" value="#AAAAAA" data-jscolor="{}"/>    
+        
+            <ul>
+                <div id='filename'></div>
+                <div id='filedataQty'></div>
+                <div id='fileStatus1'></div>
+                <div id='fileStatus2'></div>
+                <div id='fileStatus3'></div>
+                <div id='fileStatus4'></div>
+                <div id='fileStatus5'></div>
+            </ul>
+        </div>               
+        <div class="form-popup" id="export">
+            <button  class="close-button" type="button" onclick="closeExport()">X</button>
+    		<h2 class="popup-header">Exporting</h2>
+            <fieldset>  
+                <legend>Export with animation:</legend>
+                <label><input id="option_animationX" name="trs" type="checkbox"/>Rotate around X</label><br>
+                <label><input id="option_animationY" name="trs" type="checkbox"/>Rotate around Y</label><br>
+                <label><input id="option_animationZ" name="trs" type="checkbox"/>Rotate around Z</label><br>
+			    <br>
+			    <label><input id="option_animation_dir" name="trs" type="checkbox"/>Change direction</label><br>
+			    <br>
+			    <label>Animation duration</label>
+                <select id="animDuration" name="animDuration">
+                    <option value="1">1 sec</option>
+                    <option value="5">5 sec</option>
+                    <option value="10">10 sec</option>
+                    <option value="15" selected>15 sec</option>
+                    <option value="30">30 sec</option>
+                    <option value="60">1 min</option>
+                    <option value="300">5 min</option>
+                    <option value="900">15 min</option>
+                    <option value="3600">1 hour</option>
+                </select>
+            </fieldset>         
+            <br>
+            <label>Export format</label>
+            <br>
+            <select id="exportFormat" name="exportFormat">
+                <option value="1">GLB (Binary)</option>
+                <option value="2">GLTF (Text)</option>
+            </select>
+            <br>
+		    <br>
+		    <label>Filename for saved object:</label><br>
+		    <input id="gltfFileName" name="gltfFileName" type="text" maxlength="25" value="globe"/>
+		    <br><br>
+		    <button style="width:120px; height:30px;" id="export_objects" title="Here you can save this object on your computer in GLB format.">Save 3D object</button>
+        </div>
+        <script>
+	        function openSettings() {document.getElementById("settings").style.display = "block";}
+            function closeSettings() {document.getElementById("settings").style.display = "none";}
+
+            function openExport() {document.getElementById("export").style.display = "block";}
+            function closeExport() {document.getElementById("export").style.display = "none";}
+        </script>
+        
+        <script src="./js/jscolor.js"></script>
+	    <script type="module" src="./js/image_box.js"></script>
+	</body>
+</html>

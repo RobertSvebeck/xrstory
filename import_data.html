@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">  
+	<head>
+		<title>Import CSV</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	</head>
+	<body>
+
+        <h3>Import CSV</h3>
+        <p>Select your csv file:
+        <input type="file" id="csvFile" accept=".csv" />
+
+		<script>
+
+            document.getElementById( 'csvFile' ).addEventListener( 'change', ( event ) => {  
+            
+                var userFile = csvFile.files[0];   
+                
+                const userFileURL = URL.createObjectURL( userFile );
+    
+                let reader = new FileReader();
+                reader.readAsText( userFile );
+                reader.onload = loadHandler;
+                reader.onerror = errorHandler;
+            } );
+   
+            function loadHandler( event ) {
+            	var csv = event.target.result;
+            	processData(csv);   
+            }
+            
+            function errorHandler( evt ) {
+            	if(evt.target.error.name == "NotReadableError") {
+                    console.log ( 'Error. File was not sucessfully read!' );
+            	}
+            }
+            
+            function processData( csv ){
+                const readData = csvToArray( csv );
+            	verifyData( readData );
+            }
+            
+            function csvToArray( str, delimiter = ";" ) {
+                const headers = str.slice( 0, str.indexOf( "\r\n" ) ).split( delimiter );
+                const rows = str.slice( str.indexOf( "\n" ) + 1 ).split( "\r\n" );
+                const arr = rows.map( function ( row ) {
+                    const values = row.split( delimiter );
+                    const el = headers.reduce( function ( object, header, index ) {
+                        object[header] = values[index];
+                        return object;
+                        }, {});
+                    return el;
+                });
+                return arr;
+            }
+            
+            function verifyData( data ) {
+                let hasError = false;
+
+                if( data[0].id == undefined ) {
+                	console.log( 'File process error: There is no id column present.' );
+                	hasError=true;
+                }
+                
+                
+                if(!hasError) {
+                    
+                    //Draw objects, calculate stuff, etc etc
+                    console.log ( data );
+                }
+            }
+		</script>
+	</body>
+</html>

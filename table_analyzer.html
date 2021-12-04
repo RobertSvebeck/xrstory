@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">  
+	<head>
+		<title>Table Analyzer</title>
+		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+		<base href="./">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="./styles/main.css">
+        <link rel="stylesheet" href="./styles/tableanalyzer.css">
+	</head>
+	<body>
+        <div class="top">
+	        <a href="https://xrstory.io/free-tools"><img class="logo" src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150" ></a>
+            <h2>Table Analyzer (Beta)</h2>
+            <button class="popup-button" title="Select calculations" onclick="openCalc()">Calculations</button>
+            <button class="popup-button" title="Here you import your data!" onclick="openImportData()">Import Data</button>
+            <button class="popup-button" title="In this pop-up window you can save and load all kinds of settings." onclick="openSaveLoadSettings()">Save / Load Settings</button>
+            <button class="popup-button" title="Change visualization type" onclick="openVizType()">Viz-Type</button>
+            <button class="popup-button" id="resetView" title="Resets all zooms/pans and rotations you have done since the page was loaded.">Reset View</button>
+            
+        </div>
+		
+        <div class="form-popup" id='selections'>
+            <button  class="close-button" type="button" onclick="closeSelections()">X</button>
+            <h2 class="popup-header">Current Selections</h2>
+		</div>
+		
+        <div class="form-popup" id="calculations">
+            <button class="close-button" type="button" onclick="closeCalc()">X</button>
+            <h2 class="popup-header">Calculations</h2>
+            <p>Select what to calculate (when importing)</p>
+            <label><input id="chk_uniques" name="chk_uniques" type="checkbox" checked/># Unique values</label>
+            <br><label><input id="chk_empty" name="chk_empty" type="checkbox" checked/># Empty values</label>
+            <br><label><input disabled id="chk_zero" name="chk_zero" type="checkbox" /># Zero values</label>
+            <br><label><input id="chk_numeric" name="chk_numeric" type="checkbox" checked/># Numerical values</label>
+            <br><label><input disabled id="chk_text" name="chk_text" type="checkbox" /># Text values</label>
+            <br><label><input id="chk_min" name="chk_min" type="checkbox" checked/>Minimum value</label>
+            <br><label><input id="chk_max" name="chk_max" type="checkbox" checked/>Maximum value</label>
+            <br><label><input disabled id="chk_mean" name="chk_mean" type="checkbox" />Mean value</label>
+            <br><label><input disabled id="chk_avg" name="chk_avg" type="checkbox" />Average value</label>
+		</div>
+
+        <div class="form-popup" id="vizType">
+            <button class="close-button" type="button" onclick="closeVizType()">X</button>
+            <h2 class="popup-header">Visualisations</h2>
+			<button id="flat">FLAT</button>
+			<button id="sphere">SPHERE</button>
+			<button id="helix">HELIX</button>
+			<button id="grid">GRID</button>
+		</div>
+
+		<div class="form-popup" id="importData">
+		    <button class="close-button" type="button" onclick="closeImportData()">X</button>
+		    <h2 class="popup-header">Import Data</h2>
+            <label><input disabled id="chk_auto" name="chk_auto" type="checkbox" checked/>Automatically figure out separator</label>
+            <br><br>
+            <fieldset disabled>
+                <legend>Manual file import instructions:</legend>
+    		    <label><input id="chk_quotes" name="chk_quotes" type="checkbox" checked/>Remove quotations</label>
+    		    <br>
+    		    <label>Columns separator: </label><br>
+    		    <input id="separator" type="text" maxlength="4" size = "4" value=";"/>               
+                <br>
+                <label>Type of line break</label>
+                <br>
+                <select id="lineBreak" name="lineBreak">
+                    <option value="1" checked>Windows</option>
+                    <option value="2">Both Sides</option>
+                    <option value="9">Special characters</option>
+                </select>
+                <br>
+                <label disabled>Special line break characters: </label>
+                <br>
+                <input disabled id="lineBreakSpecial" type="text" maxlength="8" size = "8" value="<br>"/>    
+            
+            </fieldset>
+            <br>
+    		    
+            <p>Import your data file:
+                <button style="display:block;width:120px; height:30px;" onclick="document.getElementById('csvFile').click()" title="Press to load your data file. It might take a few seconds to load the data, be patient! Note that No data is uploaded to our server. This page works (when loaded) even when you are in Airplane mode.">Load a CSV file</button>
+                <input hidden type='file' id="csvFile" accept=".csv, .txt,.tab" style="display:none">
+            </p>
+            <ul>
+                <div id='filename'></div>
+                <div id='filedataQty'></div>
+                <div id='fileStatus1'></div>
+                <div id='fileStatus2'></div>
+                <div id='fileStatus3'></div>
+                <div id='fileStatus4'></div>
+                <div id='fileStatus5'></div>
+                <div id='fileStatus6'></div>
+                <div id='fileStatus7'></div>
+                <div id='fileStatus8'></div>
+                <div id='fileStatus9'></div>
+                <div id='fileStatus10'></div>
+                <div id='fileStatus11'></div>
+                <div id='fileStatus12'></div>
+            </ul>
+        </div>	  
+        <div class="form-popup" id="saveLoadSettings">
+            <button  class="close-button" type="button" onclick="closeSaveLoadSettings()">X</button>
+    		<h2 class="popup-header">Save / Load Settings</h2>
+
+             <fieldset>  
+                <legend>Save Settings</legend>   
+    		    <label>Filename:</label><br>
+    		    
+    		    <input id="saveSettingsFileName" type="text" maxlength="25" value=""/>
+    		    <br><br>
+    		    <button style="width:120px; height:30px;" id="saveSettingsFile" title="Here you can save all your settings">Save</button>
+            </fieldset> 
+            
+            <fieldset>  
+                <legend>Load Settings</legend>   
+    		    <button style="width:120px; height:30px;" onclick="document.getElementById('loadSettingsFile').click()" title="Here you can load settings from a file">Load settings file</button>
+                <input type='file' id="loadSettingsFile" accept=".settings" style="display:none"> 
+
+                <br>
+                <ul>
+                    <div id='loadSettingsFileName'></div>
+                    <div id='loadSettingsStatus1'></div>
+                    <div id='loadSettingsStatus2'></div>
+                    <div id='loadSettingsStatus3'></div>
+                </ul>
+		    </fieldset>
+		    
+	    </div>       
+        
+
+	    <script>
+            function openImportData() {document.getElementById("importData").style.display = "block";}
+            function closeImportData() {document.getElementById("importData").style.display = "none";}
+
+            function openSaveLoadSettings() {document.getElementById("saveLoadSettings").style.display = "block";}
+            function closeSaveLoadSettings() {document.getElementById("saveLoadSettings").style.display = "none";}
+            
+	        function openVizType() {document.getElementById("vizType").style.display = "block";}
+	        function closeVizType() {document.getElementById("vizType").style.display = "none";}
+	        
+            function openCalc() {document.getElementById("calculations").style.display = "block";}
+            function closeCalc() {document.getElementById("calculations").style.display = "none";}
+
+            function openSelections() {document.getElementById("selections").style.display = "block";}
+            function closeSelections() {document.getElementById("selections").style.display = "none";}
+            
+        </script>
+
+	    <script src="./js/fileSaver.js"></script>
+        <script src="./js/jscolor.js"></script>
+        <script src="./js/CCapture.all.min.js"></script>
+	    <script type="module" src="./js/table_analyzer.js"></script>
+	</body>
+</html>

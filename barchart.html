@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">  
+	<head>
+		<title>3D Bar Chart</title>
+		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="./styles/main.old.css">
+	</head>
+	<body>
+		<div class="header">
+		    
+		    <div class="tooltip">
+		       <a href="https://xrstory.io/free-tools"><img src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="200"></a>
+		       <span class="tooltiptext"><p>Navigate back to the main object page</p></span>
+		    </div>
+    		
+    		<h2>3D Bar Chart</h2>
+    		<p>This object is currently under development.</p>
+    		<div class="tooltip">
+                <label><input id="vrmode" name="vrmode" type="checkbox"/>Enable VR mode</label>
+                <span class="tooltiptext">
+                    <p>With VR mode enabled you can look and interact with your object using a VR headset and VR controls.</p>
+                    <p>If you disable VR mode you can look at your object on your normal screen and rotate it using your mouse.</p>
+                    <p>VR mode can only be changed before you create your object.</p>
+                    <p><i>(Auto rotation is only supported when VR mode is disabled).</i></p>
+                </span>
+            </div> 
+            <form id="choseFile">
+                <div class="tooltip">
+                    <input type="file" id="csvFile" value="csvFile" accept=".csv" />
+                    <span class="tooltiptext"><p>It might take a few seconds to load the data, be patient!</p></span>
+                </div>    
+                <p><a href="https://xrstory.io/bar-chart" target="_blank">Read about the file format here.</a></p>
+                <div hidden id="labels">
+                    <div class="tooltip">
+                        <p>Data is loaded!</p>
+                        <span class="tooltiptext">
+                            <p>Now you can label your axis and then press the button "Generate 3D Object" to see your object.</p>
+                        </span>
+                    </div>
+                
+                    
+                    <p><b>Set labels:</b></p>
+                        
+                    
+                    <div class="tooltip">
+                        <p>Col: <input id="col" name="col" type="text"/></p>
+                        <p>Row: <input id="row" name="row" type="text"/></p>
+                        <p>Height: <input id="height" name="height" type="text"/></p>
+                        <span class="tooltiptext">
+                            <p>Write your own descriptions of your 3 axis (x,y and z). If you leave them blank they get generic lables.</p>
+                            <p><i>You can not change labels after the object has been created.</i></p>
+                        </span>
+                    </div>
+                    <br>
+                    <div class="tooltip">
+                        <input type="submit" id="import" value="Generate 3D Object" />
+                        <span class="tooltiptext">
+                            <p>If you have a lot of data in your file, it can take some time to create the object</p>
+                            <p>If nothing happens, sadly there must be a weird problem with the data in your your file...</p>
+                        </span>
+                    </div> 
+                </div>
+            </form>
+            <div hidden id="settings">
+                <div class="tooltip">
+                    <label><input id="rotate" name="rotate" type="checkbox"/>Auto Rotate 3d object</label><br>
+                    <span class="tooltiptext"><p>Auto rotation only works in non VR mode.</p></span>
+                </div> 
+                  
+                <form id="refresh" onsubmit="setTimeout(function(){window.location.reload();},10);">
+                    
+                    <p>Press the Refresh button to import another file.</p>
+                    <div class="tooltip">
+                        <input type="submit" value="Refresh" />
+                        <span class="tooltiptext"><p>To re-create the object with new labels, or create another object, press here.</p></span>
+                    </div>
+                </form>
+              
+                <h3><b>Export</b></h3>
+                
+			    <label hidden><input hidden id="option_trs" name="trs" type="checkbox"/>TRS</label>
+			    <label hidden><input hidden id="option_visible" name="visible" type="checkbox" checked="checked"/>Only Visible</label>
+			    <label hidden><input hidden id="option_drawrange" name="visible" type="checkbox"/>Truncate drawRange</label>
+			    <label hidden><input id="option_binary" name="visible" type="checkbox" checked="checked">Binary (<code>.glb</code>)</label>
+			    <br><label hidden >Max texture size<input hidden id="option_maxsize" name="maxSize" type="number" value="4096" min="2" max="8192" step="1"></label>
+		        <div class="tooltip">
+		            <button disabled id="export_objects">Save your 3D object</button>
+		            <span class="tooltiptext">
+		               <p>Here you can save this object on your computer in GLB format.</p>
+		               <p>Once you have it saved you can import it to most 3D object tools on the market</p>
+                    </span>
+		        </div>
+		        <div class="tooltip">
+		            <button id="shot">Take Screenshot</button>
+		            <span class="tooltiptext">
+		               <p>With this button you can get a 2D screenshot of the current view.</p>
+                    </span>
+		        </div>
+		        
+		    </div>
+		</div>
+		
+        <div class="main" id="canvas"></div>
+  
+		<script type="module">
+		
+		    import * as THREE            from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+            import { TrackballControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/TrackballControls.js';
+            import { GLTFExporter }      from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/exporters/GLTFExporter.js';
+            import { VRButton }      from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/webxr/VRButton.js';
+			import { XRControllerModelFactory } from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/webxr/XRControllerModelFactory.js';
+
+            let container, camera, controls, controller1,controller2,controllerGrip1, controllerGrip2,raycaster, scene, renderer,group,Containerwidth,ContainerHeight;
+            
+            //For the XR controls
+            const intersected = [];
+            const tempMatrix = new THREE.Matrix4();
+
+            const params = (new URL(document.location)).searchParams;
+		    const choseFile = document.getElementById("choseFile");
+            const csvFile = document.getElementById("csvFile");
+            
+            const fileInput = document.getElementById('csvFile');
+            fileInput.onchange = () => {
+              
+
+              document.getElementById("labels").style.display='block';
+            }
+            
+            choseFile.addEventListener("submit", function (e) {
+                
+              document.body.style.cursor = 'wait';
+              e.preventDefault();
+              const input = csvFile.files[0];
+              const reader = new FileReader();
+        
+              reader.onload = function (e) {
+                  const text = e.target.result;
+                  const data = csvToArray(text);
+        
+        
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].id == "")
+                        data.splice(i--, 1);
+                    }        
+                  
+                  document.getElementById("choseFile").style.display='none';
+                  document.getElementById("settings").style.display='block';
+               
+                  document.getElementById("export_objects").disabled = false;
+                  init(data);
+			      animate();
+                  document.body.style.cursor = 'default';
+              };
+              reader.readAsText(input);
+            });
+           
+            
+            function csvToArray(str, delimiter = ";") {
+              const headers = str.slice(0, str.indexOf("\r\n")).split(delimiter);
+              const rows = str.slice(str.indexOf("\n") + 1).split("\r\n");
+              const arr = rows.map(function (row) {
+                const values = row.split(delimiter);
+                const el = headers.reduce(function (object, header, index) {
+                  object[header] = values[index];
+                  return object;
+                }, {});
+                
+                return el;
+
+              });
+              return arr;
+            }
+
+			function exportGLTF( input ) {
+				const gltfExporter = new GLTFExporter();
+				const options = {
+					trs: document.getElementById( 'option_trs' ).checked,
+					onlyVisible: document.getElementById( 'option_visible' ).checked,
+					truncateDrawRange: document.getElementById( 'option_drawrange' ).checked,
+					binary: document.getElementById( 'option_binary' ).checked,
+					maxTextureSize: Number( document.getElementById( 'option_maxsize' ).value ) || Infinity // To prevent NaN value
+				};
+
+				gltfExporter.parse( input, function ( result ) {
+					if ( result instanceof ArrayBuffer ) {
+						saveArrayBuffer( result, 'barchart.glb' );
+					} else {
+						const output = JSON.stringify( result, null, 2 );
+						console.log( output );
+						saveString( output, 'barchart.gltf' );
+					}
+				}, options );
+			}
+
+			document.getElementById( 'export_objects' ).addEventListener( 'click', function () {
+				exportGLTF( group );
+			} );
+
+			const link = document.createElement( 'a' );
+			link.style.display = 'none';
+			document.body.appendChild( link ); // Firefox workaround, see #6594
+
+			function save( blob, filename ) {
+				link.href = URL.createObjectURL( blob );
+				link.download = filename;
+				link.click();
+			}
+
+			function saveString( text, filename ) {
+				save( new Blob( [ text ], { type: 'text/plain' } ), filename );
+			}
+
+			function saveArrayBuffer( buffer, filename ) {
+				save( new Blob( [ buffer ], { type: 'application/octet-stream' } ), filename );
+			}
+    
+            function PlotGrid(name,x,y,z,rx,ry,rz,color,size,segments) {
+				const gridHelper = new THREE.GridHelper( size, segments, 0x555555, color );
+				gridHelper.material.opacity = 0.15;
+                gridHelper.material.transparent = true;
+				gridHelper.position.set (x,y,z);
+				gridHelper.rotation.x = - Math.PI / 2*rx;
+				gridHelper.rotation.y = - Math.PI / 2*ry;
+				gridHelper.rotation.z = - Math.PI / 2*rz;
+				gridHelper.name = name;
+				group.add( gridHelper );
+				
+            }
+            
+            function PlotText(text,x,y,z,rx,ry,rz,color,size){
+                var loader = new THREE.FontLoader();
+                loader.load( './fonts/helvetiker_regular.typeface.json', function ( font ) {
+                    var geometry = new THREE.TextGeometry( text+'', {
+                        font: font,
+                        size: size,
+                        height: 0,
+                        curveSegments: 1
+                    } );
+                    geometry.center();
+    
+                    var material = new THREE.MeshStandardMaterial(
+                        { color: color}
+                    );
+                    var mesh = new THREE.Mesh( geometry, material );
+                    mesh.position.set(x,y,z);
+                    mesh.rotation.x = - Math.PI / 2*rx;
+                    mesh.rotation.y = - Math.PI / 2*ry;
+                    mesh.rotation.z = - Math.PI / 2*rz;
+                    
+                    group.add( mesh );	
+                } );
+            }
+
+			
+
+			function init(data) {
+                
+			    let maxCol = Number((data.reduce((acc, item) => acc = acc > item.col ? acc : item.col, 0)));
+                let maxRow = Number((data.reduce((acc, item) => acc = acc > item.row ? acc : item.row, 0)));
+                let maxHeight = Number((data.reduce((acc, item) => acc = acc > item.height ? acc : item.height, 0)));
+                let maxTotal = Math.max(maxCol,maxRow,maxHeight);
+                let minTotal = 1;
+                
+                console.log('maxTotal:' + maxTotal);
+     
+                if (document.getElementById('vrmode').checked) {
+    				container = document.createElement( 'div' );
+    				document.body.appendChild( container );
+				    Containerwidth = window.innerWidth;
+                    ContainerHeight = window.innerHeight;
+                    document.getElementById( 'canvas' ).style.display='none'
+                } else {	
+				    container = document.getElementById( 'canvas' );
+				    Containerwidth = container.offsetWidth-20;
+                    ContainerHeight = container.offsetHeight-20;
+                    document.body.appendChild( container );
+                }
+                
+				scene = new THREE.Scene();
+				scene.name = 'Scene';
+/*				
+				if (document.getElementById('vrmode').checked) {
+                    const loader = new THREE.CubeTextureLoader();
+                    const texture = loader.load([
+                      'https://threejsfundamentals.org/threejs/resources/images/grid-1024.png',
+                      'https://threejsfundamentals.org/threejs/resources/images/grid-1024.png',
+                      'https://threejsfundamentals.org/threejs/resources/images/grid-1024.png',
+                      'https://threejsfundamentals.org/threejs/resources/images/grid-1024.png',
+                      'https://threejsfundamentals.org/threejs/resources/images/grid-1024.png',
+                      'https://threejsfundamentals.org/threejs/resources/images/grid-1024.png',
+                    ]);
+                    scene.background = texture;
+				}
+*/				
+                if (document.getElementById('vrmode').checked) {
+                    document.getElementById('rotate').checked = false;
+                    document.getElementById('rotate').disabled = true;
+                    document.getElementById('vrmode').disabled = true;
+                } else {
+                    document.getElementById('rotate').disabled = false;
+                    document.getElementById('vrmode').disabled = true;
+			    }
+				// ---------------------------------------------------------------------
+				// Perspective Camera
+				// ---------------------------------------------------------------------
+				camera = new THREE.PerspectiveCamera( 45, Containerwidth / ContainerHeight, 1, maxTotal*100);
+				
+				if (document.getElementById('vrmode').checked) {
+				    camera.position.set( 0,0,0);
+				} else {
+				    camera.position.set( maxTotal*2, maxTotal*2, maxTotal*2 );
+				}
+				camera.name = "PerspectiveCamera";
+				camera.position.original_x = camera.position.x;
+				camera.position.original_y = camera.position.y;
+				camera.position.original_z = camera.position.z;
+				scene.add( camera );
+
+
+
+				
+				// ---------------------------------------------------------------------
+				// Mouse Controls
+				// ---------------------------------------------------------------------
+				
+				controls = new TrackballControls( camera, container );
+				controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+                controls.autoRotate = true;
+				controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+				controls.dampingFactor = 0.00001;
+				controls.screenSpacePanning = false;
+				controls.minDistance = 0;
+				controls.maxDistance = 5000;
+                controls.rotateSpeed = 5;
+				controls.maxPolarAngle = Math.PI / 2;
+				
+
+				
+				// ---------------------------------------------------------------------
+				// Ambient light
+				// ---------------------------------------------------------------------
+				const ambientLight = new THREE.AmbientLight(  0xFFFFFF );
+				ambientLight.name = 'AmbientLight';
+				ambientLight.intensity = 1;
+				scene.add( ambientLight );
+
+				// ---------------------------------------------------------------------
+				// Group to be exported
+				// ---------------------------------------------------------------------
+				group = new THREE.Group();
+
+
+				// ---------------------------------------------------------------------
+				// Grids
+				// ---------------------------------------------------------------------
+				const Middle = 1+Math.floor(maxTotal/2);
+				const Middle2 = maxTotal/2;
+				PlotGrid('Red (X)'  ,Middle,0,Middle,0,0,0,0x330000,maxTotal,maxTotal);
+				PlotGrid('Green (Y)',Middle,Middle-0.5,0.5,1,0,0,0x003300,maxTotal,maxTotal);
+				PlotGrid('Blue (Z)' ,minTotal-0.5,Middle-0.5,Middle,1,0,1,0x000033,maxTotal,maxTotal);
+
+				// ---------------------------------------------------------------------
+				// Axis labels
+				// ---------------------------------------------------------------------
+				let xaxisLabel = (document.getElementById('col').value=="") ? "Column" : document.getElementById('col').value;
+				let yaxisLabel = (document.getElementById('height').value=="") ? "Height" : document.getElementById('height').value;
+				let zaxisLabel = (document.getElementById('row').value=="") ? "Row" : document.getElementById('row').value;
+				
+				PlotText(xaxisLabel,Middle,0,maxTotal+1,0,0,0,'#FF0000',0.5);// x1
+				PlotText(xaxisLabel,Middle,maxTotal+0.5,0.5,1,0,2,'#FF0000',0.5);// x2
+				
+				PlotText(yaxisLabel,maxTotal+1,Middle-0.5,0.5,-1,-1,0,'#00FF00',0.5);// y1
+				PlotText(yaxisLabel,0.5,Middle-0.5,maxTotal+1,0,0,1,'#00FF00',0.5);// y2
+				
+				PlotText(zaxisLabel,0.5,maxTotal+0.5,Middle,1,0,1,'#0000FF',0.5);// z1
+				PlotText(zaxisLabel,maxTotal+1,0,Middle,0,-1,0,'#0000FF',0.5);// z2
+
+	            //Red
+	            PlotText(maxTotal,maxTotal,0,maxTotal+1,0,0,0,'#880000',0.5);
+	            PlotText(1,1,0,maxTotal+1,0,0,0,'#880000',0.5);
+                
+                PlotText(1,1,maxTotal+0.5,0.5,1,0,2,'#880000',0.5);
+                PlotText(maxTotal,maxTotal,maxTotal+0.5,0.5,1,0,2,'#880000',0.5);
+                
+	            //Green
+	            PlotText(1,maxTotal+1,0.5,0.5,-1,-1,0,'#008800',0.5);
+                PlotText(maxTotal,maxTotal+1,maxTotal-0.5,0.5,-1,-1,0,'#008800',0.5);
+                
+                
+                PlotText(maxTotal,0.5,maxTotal,maxTotal+1,0,0,1,'#008800',0.5);      
+                PlotText(1,0.5,minTotal,maxTotal+1,0,0,1,'#008800',0.5);  
+                
+	            //Blue
+	            PlotText(1,0.5,maxTotal+0.5,1,1,0,1,'#000088',0.5);
+                PlotText(maxTotal,0.5,maxTotal+0.5,maxTotal,1,0,1,'#000088',0.5);
+	            PlotText(1,maxTotal+1,0,1,0,-1,0,'#000088',0.5);
+                PlotText(maxTotal,maxTotal+1,0,maxTotal,0,-1,0,'#000088',0.5);                
+                
+				// ---------------------------------------------------------------------
+				// Data Points
+				// ---------------------------------------------------------------------
+				const geometries = [
+					new THREE.BoxGeometry( 1, 1, 1 )
+				];
+
+				for(let i = 0; i < data.length; i++){
+				    
+        			if ( data[i]['id'] != "" 
+            			&& data[i]['row'] !== undefined 
+            			&& data[i]['col'] !== undefined
+            			&& data[i]['height'] !== undefined
+            			&& data[i]['color'] !== undefined) {
+
+            
+                        const color = data[i]['color'];
+
+    					const geometry = geometries [0];
+        				const material = new THREE.MeshStandardMaterial( {
+        					roughness: 0,
+        					metalness: 0,
+        					opacity: 0.8,
+                            transparent: true
+        				} );
+                        material.color.setHex("0x" + color);
+    					const object = new THREE.Mesh( geometry, material );
+                        object.name = 'data';
+                        
+    					object.position.x = Number(data[i]['col']);
+    					object.position.y = Number(data[i]['height'])/2; //Needed to put start at zero;
+    					object.position.z = Number(data[i]['row']);
+                        
+                        object.position.Firstx = object.position.x;
+    					object.position.Firsty = object.position.y;
+    					object.position.Firstz = object.position.z;
+    					object.material.color.original = "0x" + color;
+    					
+    					PlotText(data[i]['id'],object.position.x,Number(data[i]['height']),object.position.z,1,0,0,'#FFFFFF',0.2);
+
+    					object.scale.y = Number(data[i]['height']);
+                        //object.scale.x *= 0.7;
+                        //object.scale.z *= 0.7;
+    
+    					object.castShadow = true;
+    					object.receiveShadow = true;
+    					group.add( object );
+				    }
+				}
+
+                scene.add( group );
+                
+                
+                // ---------------------------------------------------------------------
+				// Renderer
+                // ---------------------------------------------------------------------
+                
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.shadowMap.enabled = true;
+				renderer.setClearColor( 0xCCCCCC, 1 );
+				
+				if (document.getElementById('vrmode').checked) {
+				    renderer.setSize( window.innerWidth, window.innerHeight  );
+				    document.body.appendChild( VRButton.createButton( renderer ) );
+				    renderer.xr.enabled = true;
+				} else {
+				    renderer.setSize( Containerwidth, ContainerHeight );
+				    renderer.xr.enabled = false;
+				    
+				    // add Screenshot listener
+                    document.getElementById("shot").addEventListener('click', takeScreenshot);
+
+
+				}
+				container.appendChild( renderer.domElement );
+				
+				
+				// ---------------------------------------------------------------------
+				// VR Controls incl. raycaster
+				// ---------------------------------------------------------------------
+
+				controller1 = renderer.xr.getController( 0 );
+				controller1.addEventListener( 'squeezestart', onSqueezeStart);
+                controller1.addEventListener( 'squeezeend', onSqueezeEnd);
+				controller1.addEventListener( 'selectstart', onSelectStart );
+				controller1.addEventListener( 'selectend', onSelectEnd );
+				scene.add( controller1 );
+
+				controller2 = renderer.xr.getController( 1 );
+				controller2.addEventListener( 'squeezestart', onSqueezeStart);
+                controller2.addEventListener( 'squeezeend', onSqueezeEnd);				
+				controller2.addEventListener( 'selectstart', onSelectStart );
+				controller2.addEventListener( 'selectend', onSelectEnd );
+				scene.add( controller2 );
+
+				const controllerModelFactory = new XRControllerModelFactory();
+
+				controllerGrip1 = renderer.xr.getControllerGrip( 0 );
+				controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
+				scene.add( controllerGrip1 );
+
+				controllerGrip2 = renderer.xr.getControllerGrip( 1 );
+				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
+				scene.add( controllerGrip2 );
+
+				// RAYCaster
+
+				const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - maxTotal ) ] );
+
+				const line = new THREE.Line( geometry );
+				line.name = 'line';
+				line.scale.z = 10;
+                line.material.color.setHex( 0xAAAAAA );
+                line.material.linewidth= 5;
+				controller1.add( line.clone() );
+				controller2.add( line.clone() );
+
+				raycaster = new THREE.Raycaster();
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+
+            function takeScreenshot() {
+                renderer.render(scene, camera);
+                renderer.domElement.toBlob(function(blob){
+                	var a = document.createElement('a');
+                  var url = URL.createObjectURL(blob);
+                  a.href = url;
+                  a.download = 'canvas.png';
+                  a.click();
+                }, 'image/png', 1.0);
+            
+            }
+
+            // Squeeze will return the object to it's original position and get it's original color.
+			function onSqueezeStart( event ) {
+
+				const controller = event.target;
+
+				const intersections = getIntersections( controller );
+
+				if ( intersections.length > 0 ) {
+
+					const intersection = intersections[ 0 ];
+
+					const object = intersection.object;
+					if (object.name == 'data') {
+					    object.material.color.setHex( 0xdddddd )
+					    
+					    object.material.emissive.b = 1;
+					    controller.attach( object );
+
+					    controller.userData.selected = object;
+					}
+
+				}
+			}
+
+			function onSqueezeEnd( event ) {
+				const controller = event.target;
+				if ( controller.userData.selected !== undefined ) {
+
+					const object = controller.userData.selected;
+					if (object.name == 'data') {
+    					object.material.emissive.b = 0;
+    					group.attach( object );
+    					object.material.color.setHex(object.material.color.original);
+                        object.position.x=object.position.Firstx;
+                        object.position.y=object.position.Firsty;
+                        object.position.z=object.position.Firstz;
+    					
+    
+    					controller.userData.selected = undefined;
+					}
+				}
+			}            
+
+		
+			
+			// With Select you can move an object and leave it at a new position, color will remain White.
+			
+			function onSelectStart( event ) {
+
+				const controller = event.target;
+
+				const intersections = getIntersections( controller );
+
+				if ( intersections.length > 0 ) {
+
+					const intersection = intersections[ 0 ];
+
+					const object = intersection.object;
+					if (object.name == 'data') {
+					    object.material.color.setHex( 0xFFFFFF );
+
+					    object.material.emissive.b = 1;
+					    controller.attach( object );
+
+					    controller.userData.selected = object;
+					}
+
+				}
+			}
+
+			function onSelectEnd( event ) {
+				const controller = event.target;
+				if ( controller.userData.selected !== undefined ) {
+
+					const object = controller.userData.selected;
+					if (object.name == 'data') {
+    					object.material.emissive.b = 0;
+    					object.material.color.setHex( 0xFFFFFF );
+
+    					group.attach( object );
+    
+    					controller.userData.selected = undefined;
+					}
+				}
+			}
+
+			function getIntersections( controller ) {
+
+				tempMatrix.identity().extractRotation( controller.matrixWorld );
+
+				raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+				raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+
+				return raycaster.intersectObjects( group.children );
+
+			}
+
+			function intersectObjects( controller ) {
+
+				// Do not highlight when already selected
+
+				if ( controller.userData.selected !== undefined ) return;
+
+				const line = controller.getObjectByName( 'line' );
+				const intersections = getIntersections( controller );
+
+
+				if ( intersections.length > 0 ) {
+
+					const intersection = intersections[ 0 ];
+
+					const object = intersection.object;
+					if (object.name == 'data') {
+    					object.material.emissive.r = 1;
+    
+    					intersected.push( object );
+					}
+					line.scale.z = intersection.distance;
+
+				} else {
+
+					line.scale.z = 5;
+
+				}
+
+			}
+
+			function cleanIntersected() {
+
+				while ( intersected.length ) {
+
+					const object = intersected.pop();
+					if (object.name == 'data') {
+					    object.material.emissive.r = 0;
+					}
+
+				}
+
+			}
+
+			function onWindowResize() {
+				camera.aspect = (Containerwidth / ContainerHeight);
+				camera.updateProjectionMatrix();
+				renderer.setSize( Containerwidth, ContainerHeight );
+			}
+
+			function animate() {
+			    if (document.getElementById('vrmode').checked) {
+			        renderer.setAnimationLoop( render );
+			    } else {
+    			    if (document.getElementById('rotate').checked) {
+    			      group.rotation.y  +=  0.01;
+    			    }
+    				requestAnimationFrame( animate );
+                    controls.update();
+    				render();
+			    }
+			}
+			
+			function render() {
+				cleanIntersected();
+				intersectObjects( controller1 );
+				intersectObjects( controller2 );
+				renderer.render( scene, camera );
+			}
+			
+		</script>
+	</body>
+</html>

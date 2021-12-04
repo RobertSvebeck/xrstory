@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">  
+	<head>
+		<title>3D Scatter Chart</title>
+		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+		<base href="./">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="./styles/main.css">
+        <base href="./">
+	</head>
+	<body>
+	    <div class="top">
+	        <a href="https://xrstory.io/free-tools"><img class="logo" src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150" ></a>
+            <h2>3D Scatter Chart</h2>
+            <button class="popup-button" title="Here you import your data!" onclick="openImportData()">Import Data</button>
+            <button class="popup-button" title="In this pop-up window you can save and load all kinds of settings." onclick="openSaveLoadSettings()">Save / Load Settings</button>
+    	    <button class="popup-button" title="Settings for headers and background color" onclick="openGeneral()">General</button>
+    	    <button class="popup-button" title="Settings for Grids" onclick="openGrids()">Grids</button>
+    	    <button class="popup-button" title="Settings for axis labels" onclick="openLabels()">Axis Labels</button>
+            <button class="popup-button" title="Settings for axis values" onclick="openAxisValues()">Axis Values</button>
+            <button class="popup-button" title="Settings for individual data points" onclick="openDataPoints()">Data points</button>
+            <button class="popup-button" title="Here you see all your current selections" onclick="openSelections()">Selections</button>
+            <button class="popup-button" title="Set animation and export your object as .glb" onclick="openExport()">Export</button>
+            <button class="popup-button" id="resetView" title="Resets all zooms/pans and rotations you have done since the page was loaded.">Reset View</button>
+            <button class="popup-button" id="rescaleGrids" title="Redraw the Scatter to adjust for objects that are hidden.">Rescale Grids</button>
+            <button class="popup-button" id="shot" title="With this button you can get a 2D screenshot of the current view.">Take Screenshot</button>
+            <button class="popup-button" id="gifStartStop" title="With this button you can start/stop GIF animation recording. Plase note: After stopping the recording, it may take some time to create the GIF-animation, be patient! A 'Save File' pop-up window will appear once the GIF has been created!">GIF Start Recording</button>
+            
+        </div>   
+        
+        <div hidden class="gifRecorder" id='recordingStatus'></div>
+        <div class="hoover" id='hoover'></div>
+        
+        <div class="form-popup" id='selections'>
+            <button  class="close-button" type="button" onclick="closeSelections()">X</button>
+            <h2 class="popup-header">Current Selections</h2>
+            
+            <button disabled id="unselectAll" title="Remove all selections">Clear selections</button>
+            <button disabled id="hideSelected" title="Hide all selected objects">Hide selected</button>
+            <button disabled id="hideExcluded" title="Hide all objects that are not selected">Hide unselected</button>
+            <button id="unHideAll" title="Unhide all objects">Unhide All</button>
+            
+            <div id='selected'><p>No objects selected.</p><p>You select objects by double clicking on them.</p><p>Deselect by double clicking on a selected object.</p></div>
+            <br>
+            <button disabled id="joinSelected" title="Create a line between 2 objects (only enabled when only 2 objects are selected.">Join 2 selected</button>
+            
+            <label>Type</label>
+            <select disabled id="joinType" name="joinType">
+                <option selected value="0">Line</option> 
+                <option value="1" >Curve</option> 
+            </select>     
+            <label>Arrow</label>
+            <select disabled id="joinArrow" name="joinArrow">
+                <option selected value="0">No Arrow</option> 
+                <option value="1" >1to2</option> 
+                <option value="2" >2to1</option> 
+                <option value="2" >1to2to1</option> 
+            </select>
+            <br><button id="removeJoins" title="Removes all current joins">Remove joins</button>
+            <br><br>
+            <fieldset>  
+                <legend>Select all with same:</legend>
+                <button disabled id="selectShape" title="Selects all with same shape">Shape</button>
+                <button disabled id="selectColor" title="Selects all with same color">Color</button>
+                <button disabled id="selectSize" title="Selects all with same size">Size</button>
+                <br><label>Size tolerance +- %</label><br>
+		        <input id="sizeTolerance" name="sizeTolerance" length="3" type="number" min="0" max="100" value="0"/>
+            </fieldset>
+            <br>
+            <label right>Selected color: <br><input id="selectedColor" size="7" maxlength="7" value="#EFEFEF" data-jscolor="{}"/>
+        </div>
+
+
+		<div class="form-popup" id="general">
+		    <button class="close-button" type="button" onclick="closeGeneral()">X</button>
+    		<h2 class="popup-header">General Settings</h2>
+            <label><input id="autoRescaling" name="autoRescaling" type="checkbox" title="When enabled, the scatter will automatically try to reposition objects when objects get hidden"/>Enable auto-rescaling</label>
+            <br><br>
+            <label right>Background color: <br><input id="screenColor" size="7" maxlength="7" value="#AAAAAA" data-jscolor="{}"/>
+            <br><br>
+            <fieldset>  
+                <legend>Header text:</legend>
+                <label><input id="ShowHeaderText" name="ShowHeaderText" type="checkbox" checked/>Show text</label>
+                <br>
+                <input id="headerText" name="headerText" type="text" size="40" maxlength="40"/>
+                <select id="headerTextFontSize" name="headerTextFontSize">
+                    <option value="1">Small</option>
+                    <option value="2" selected >Medium</option>
+                    <option value="3">Large</option>
+                </select>   
+                <br>
+                <label right>Color: <br><input id="headerColor" size="7" maxlength="7" value="#AAAAAA" data-jscolor="{}"/>
+		    </fieldset>
+            <fieldset>  
+                <legend>Footer text:</legend>
+                <label><input id="ShowFooterText" name="ShowFooterText" type="checkbox" checked/>Show text</label>
+                <br>
+                <input id="footerText" name="footerText" type="text" size="40" maxlength="40"/>
+                <select id="footerTextFontSize" name="footerTextFontSize">
+                    <option value="1">Small</option>
+                    <option value="2" selected >Medium</option>
+                    <option value="3">Large</option>
+                </select>   
+                <br>
+                <label right>Color: <br><input id="footerColor" size="7" maxlength="7" value="#AAAAAA" data-jscolor="{}"/>
+		    </fieldset>
+        </div>
+
+
+       
+		<div class="form-popup" id="grids">
+		    <button class="close-button" type="button" onclick="closeGrids()">X</button>
+    		<h2 class="popup-header">Grids</h2>
+ 
+
+            <fieldset>  
+                <legend>X-Z-axis:</legend>
+                <label><input id="gridx1" name="gridx1" type="checkbox" checked/>Enable grid 1</label>
+                <label><input id="gridx2" name="gridx2" type="checkbox" />Enable grid 2</label>
+                <br>
+                <label right>Grid color: <br><input id="colorGridx" value="#FF5555" size="7" maxlength="7" data-jscolor="{}"/>
+            </fieldset>
+            <fieldset>
+                <legend>X-Y-axis:</legend>
+                <label><input id="gridy1" name="gridy1" type="checkbox" checked/>Enable grid 1</label>
+                <label><input id="gridy2" name="gridy2" type="checkbox" />Enable grid 2</label>
+                <br>
+                <label right>Grid color: <br><input id="colorGridy" value="#55FF55" size="7" maxlength="7" data-jscolor="{}"/>
+            </fieldset>
+            <fieldset>
+                <legend>Y-Z-axis:</legend>
+                <label><input id="gridz1" name="gridz1" type="checkbox" checked/>Enable grid 1</label>
+                <label><input id="gridz2" name="gridz2" type="checkbox" />Enable grid 2</label>
+                <br>
+                <label right>Grid color: <br><input id="colorGridz" value="#5555FF" size="7" maxlength="7" data-jscolor="{}"/>
+            </fieldset>
+        </div>	    
+
+		<div class="form-popup" id="labels">
+		    <button class="close-button" type="button" onclick="closeLabels()">X</button>
+    		<h2 class="popup-header">Labels</h2>
+            <fieldset>  
+                <legend>X-axis:</legend>
+                <p>Label: <input id="xaxis" name="xaxis" type="text" size="35" maxlength="35"/></p>
+                <label><input id="yeslabelsx1" name="yeslabelsx1" type="checkbox" checked/>Show label 1</label>
+                <label><input id="yeslabelsx2" name="yeslabelsx2" type="checkbox"/>Show label 2</label>
+            </fieldset> 
+            <fieldset>  
+                <legend>Y-axis:</legend>
+                <p>Label: <input id="yaxis" name="yaxis" type="text" size="35" maxlength="35"/></p>
+                <label><input id="yeslabelsy1" name="yeslabelsy1" type="checkbox" checked/>Show label 1</label>
+                <label><input id="yeslabelsy2" name="yeslabelsy2" type="checkbox"/>Show label 2</label>
+            </fieldset> 
+            <fieldset>  
+                <legend>Z-axis:</legend>
+                <p>Label: <input id="zaxis" name="zaxis" type="text" size="35" maxlength="35"/></p>
+                <label><input id="yeslabelsz1" name="yeslabelsz1" type="checkbox" checked/>Show label 1</label>
+                <label><input id="yeslabelsz2" name="yeslabelsz2" type="checkbox" />Show label 2</label>
+            </fieldset>   
+            <label>Font Size</label><br>
+            <select id="labelsFontSize" name="labelsFontSize">
+                <option value="1">Small</option>
+                <option value="2">Medium</option>
+                <option value="3">Large</option>
+            </select>
+            
+        </div>
+
+		<div class="form-popup" id="importData">
+		    <button class="close-button" type="button" onclick="closeImportData()">X</button>
+		    <h2 class="popup-header">Import Data</h2>
+	
+	        <p>General data import settings:</p>
+	        <div class="tooltip">
+                <label>Size calculation</label><br>
+                <span class="tooltiptext">
+                    <p>Defines in what way the Size measure should be applied.</p>
+                </span>
+            </div>
+            <br>
+            <select id="sizeCalculation" name="sizeCalculation">
+                <option value="1">1 Dimension (Length)</option>
+                <option value="2">2 Dimensions (Area)</option>
+                <option value="3" selected>3 Dimensions (Volume)</option>
+            </select>
+            <br>
+            <label>Shape color (if missing):<br><input id="shapeColor" value="FFFFFF" size="7" maxlength="7" data-jscolor="{}"/>
+	        <br>
+                
+            <div class="tooltip">
+                <label><input id="normalize" name="normalize" type="checkbox" checked/>Normalize data</label>
+                <span class="tooltiptext">
+                    <p>When this checkbox is enabled, the data will be normalized to suitable scales, (must be checked/unchecked <b>before</b> you load the csv file).</p>
+                </span>
+            </div>
+
+            <p>Import your own data:
+            
+                <button style="display:block;width:120px; height:30px;" onclick="document.getElementById('csvFile').click()" title="Press to load your data file. It might take a few seconds to load the data, be patient! Note that No data is uploaded to our server. This page works (when loaded) even when you are in Airplane mode.">Load a CSV file</button>
+                <input type='file' id="csvFile" accept=".csv" style="display:none"> </p>
+            <p><a href="https://xrstory.io/scatter-chart" target="_blank">Read about the file format here.</a></i></p>
+            
+            <p>... or try some demo data:<br>
+
+            <select id="loadDemoDataSample" name="sizeCalculation">
+                <option value="scatter.csv" selected>Small</option>
+                <option value="gartner2021.csv">Medium</option>
+                <option value="Dry_Bean_Dataset1.csv">Large</option>
+            </select></p>
+          
+            <button style="display:block;width:120px; height:30px;" id='loadDemoData' title="Load selected DEMO data set"><i>Load this data</i></button>
+    
+            
+            <ul>
+                <div id='filename'></div>
+                <div id='filedataQty'></div>
+                <div id='fileStatus1'></div>
+                <div id='fileStatus2'></div>
+                <div id='fileStatus3'></div>
+                <div id='fileStatus4'></div>
+                <div id='fileStatus5'></div>
+                <div id='fileStatus6'></div>
+                <div id='fileStatus7'></div>
+                <div id='fileStatus8'></div>
+                <div id='fileStatus9'></div>
+                <div id='fileStatus10'></div>
+                <div id='fileStatus11'></div>
+                <div id='fileStatus12'></div>
+            </ul>
+        </div>	      
+        
+        <div class="form-popup" id="axisValues">
+            <button class="close-button" type="button" onclick="closeAxisValues()">X</button>
+    		<h2 class="popup-header">Axis values</h2>
+            <fieldset>  
+                <legend>X-axis:</legend>
+                <label><input id="valuesx1" name="valuesx1" type="checkbox" checked/>Show values 1</label>
+                <br>
+                <label><input id="valuesx2" name="valuesx2" type="checkbox" />Show values 2</label>
+                <br>
+                <label>Decimals</label>
+                <select id="axisXdecimals" name="axisXdecimals">
+                    <option selected value="1">0</option>
+                    <option value="10">1</option>
+                    <option value="100">2</option>
+                    <option value="1000">3</option>
+                    <option value="10000">4</option>
+                </select>                
+                
+            </fieldset> 
+            <fieldset>  
+                <legend>Y-axis:</legend>
+                <label><input id="valuesy1" name="valuesy1" type="checkbox" checked/>Show values 1</label>
+                <br>
+                <label><input id="valuesy2" name="valuesy2" type="checkbox"/>Show values 2</label>
+                <br>
+                <label>Decimals</label>
+                <select id="axisYdecimals" name="axisYdecimals">
+                    <option selected value="1">0</option>
+                    <option value="10">1</option>
+                    <option value="100">2</option>
+                    <option value="1000">3</option>
+                    <option value="10000">4</option>
+                </select>   
+
+            </fieldset> 
+            <fieldset>  
+                <legend>Z-axis:</legend>
+                <label><input id="valuesz1" name="valuesz1" type="checkbox" checked/>Show values 1</label>
+                <br>
+                <label><input id="valuesz2" name="valuesz2" type="checkbox" />Show values 2</label>
+                <br>
+                <label>Decimals</label>
+                <select id="axisZdecimals" name="axisZdecimals">
+                    <option selected value="1">0</option>
+                    <option value="10">1</option>
+                    <option value="100">2</option>
+                    <option value="1000">3</option>
+                    <option value="10000">4</option>
+                </select>   
+
+
+            </fieldset>   
+            <label>Font Size</label><br>
+            <select id="axisValuesFontSize" name="axisValuesFontSize">
+                <option selected value="1">Small</option>
+                <option value="2">Medium</option>
+                <option value="3">Large</option>
+            </select>
+        </div>
+
+		<div class="form-popup" id="dataPoints">
+		    <button class="close-button" type="button" onclick="closeDataPoints()">X</button>
+    		<h2 class="popup-header">Data Points</h2>
+    		<label><input id="idvalue" name="idvalue" type="checkbox" />Plot id in objects</label>
+    		<br>
+    		<label>Label Content</label><br>
+                <select id="labelContent" name="labelContent">
+                    <option value="1">Id</option>
+                    <option value="2">X-value</option>
+                    <option value="3">Y-Value</option>
+                    <option value="4">Z-Value</option>
+                    <option value="5">Size</option>
+                </select>
+            <br>
+            
+            <label>Label color: <br><input id="colorId" value="FFFFFF" size="7" maxlength="7" data-jscolor="{}"/>
+
+            <br>
+            <label>Font Size</label><br>
+                <select id="labelFontSize" name="labelFontSize">
+                    <option selected value="1">Small</option>
+                    <option value="2">Medium</option>
+                    <option value="3">Large</option>
+                </select>
+            <br>
+            <label>Label Rotation</label><br>
+                <select id="labelRotation" name="labelRotation">
+                    <option value="x">X-axis</option>
+                    <option value="y">Y-axis</option>
+                    <option value="z">Z-axis</option>
+                </select>
+            <br>
+            <label>Label Position</label><br>
+                <select id="labelPosition" name="labelPosition">
+                    <option value="1">Inside</option>
+                    <option value="2">Over</option>
+                    <option value="3">Under</option>
+                    <option value="4">Side</option>
+                </select>
+            <br>
+   		
+    		<label>Size adjustment</label><br>
+            <select id="shapeSizeAdjustment" name="shapeSizeAdjustment">
+                <option value="0">Small</option>
+                <option value="1">Medium</option>
+                <option value="2">Large</option>
+            </select>
+            <br>
+            <div class="tooltip">
+                <label><input id="plotShape" name="plotShape" type="checkbox" checked/>Plot shapes</label>
+                <span class="tooltiptext">
+                    <p>When this checkbox is disables, the objects shape will be hidden.</p>
+                </span>
+            </div>   
+            
+            <br>
+            <label><input id="tranShape" name="tranShape" type="checkbox" checked/>Transparent shapes</label>
+ 
+        </div>
+        
+        <div class="form-popup" id="saveLoadSettings">
+            <button  class="close-button" type="button" onclick="closeSaveLoadSettings()">X</button>
+    		<h2 class="popup-header">Save / Load Settings</h2>
+
+             <fieldset>  
+                <legend>Save Settings</legend>   
+    		    <label>Filename:</label><br>
+    		    
+    		    <input id="saveSettingsFileName" type="text" size="25" maxlength="25" value=""/>
+    		    <br><br>
+    		    <button style="width:120px; height:30px;" id="saveSettingsFile" title="Here you can save all your settings">Save</button>
+            </fieldset> 
+            
+            <fieldset>  
+                <legend>Load Settings</legend>   
+    		    <button style="width:120px; height:30px;" onclick="document.getElementById('loadSettingsFile').click()" title="Here you can load settings from a file">Load settings file</button>
+                <input type='file' id="loadSettingsFile" accept=".settings" style="display:none"> 
+
+                <br>
+                <ul>
+                    <div id='loadSettingsFileName'></div>
+                    <div id='loadSettingsStatus1'></div>
+                    <div id='loadSettingsStatus2'></div>
+                    <div id='loadSettingsStatus3'></div>
+                </ul>
+		    </fieldset>
+		    
+	    </div>       
+        
+        <div class="form-popup" id="export">
+            <button  class="close-button" type="button" onclick="closeExport()">X</button>
+    		<h2 class="popup-header">Exporting</h2>
+            <fieldset>  
+                <legend>Export with animation:</legend>
+                <label><input id="option_animationX" name="trs" type="checkbox"/>Rotate around X</label><br>
+                <label><input id="option_animationY" name="trs" type="checkbox"/>Rotate around Y</label><br>
+                <label><input id="option_animationZ" name="trs" type="checkbox"/>Rotate around Z</label><br>
+			    <br>
+			    <label><input id="option_animation_dir" name="trs" type="checkbox"/>Change direction</label><br>
+			    <br>
+			    <label>Animation duration</label>
+                <select id="animDuration" name="animDuration">
+                    <option value="1">1 sec</option>
+                    <option value="5">5 sec</option>
+                    <option value="10">10 sec</option>
+                    <option value="15" selected>15 sec</option>
+                    <option value="30">30 sec</option>
+                    <option value="60">1 min</option>
+                    <option value="300">5 min</option>
+                    <option value="900">15 min</option>
+                    <option value="3600">1 hour</option>
+                </select>
+            </fieldset>         
+            <br>
+            <label>Export format</label>
+            <br>
+            <select id="exportFormat" name="exportFormat">
+                <option value="1">GLB (Binary)</option>
+                <option value="2">GLTF (Text)</option>
+            </select>
+            <br>
+		    <br>
+		    <label>Filename for saved object:</label><br>
+		    <input id="gltfFileName" name="gltfFileName" type="text" size="35" maxlength="35" value=""/>
+		    <br><br>
+		    <button style="width:120px; height:30px;" id="export_objects" title="Here you can save this object on your computer in GLB format.">Save 3D object</button>
+	    </div>   
+        
+
+	    <script>
+
+	        function openGeneral() {document.getElementById("general").style.display = "block";}
+	        function closeGeneral() {document.getElementById("general").style.display = "none";}
+	        
+	        
+	        function openGrids() {document.getElementById("grids").style.display = "block";}
+	        function closeGrids() {document.getElementById("grids").style.display = "none";}
+	    
+            function openImportData() {document.getElementById("importData").style.display = "block";}
+            function closeImportData() {document.getElementById("importData").style.display = "none";}
+
+            function openAxisValues() {document.getElementById("axisValues").style.display = "block";}
+            function closeAxisValues() {document.getElementById("axisValues").style.display = "none";}
+
+            function openDataPoints() {document.getElementById("dataPoints").style.display = "block";}
+            function closeDataPoints() {document.getElementById("dataPoints").style.display = "none";}
+            
+            function openLabels() {document.getElementById("labels").style.display = "block";}
+            function closeLabels() {document.getElementById("labels").style.display = "none";}
+
+            function openSelections() {document.getElementById("selections").style.display = "block";}
+            function closeSelections() {document.getElementById("selections").style.display = "none";}
+
+            function openExport() {document.getElementById("export").style.display = "block";}
+            function closeExport() {document.getElementById("export").style.display = "none";}
+            
+            function openSaveLoadSettings() {document.getElementById("saveLoadSettings").style.display = "block";}
+            function closeSaveLoadSettings() {document.getElementById("saveLoadSettings").style.display = "none";}
+            
+        </script>
+
+	    <script src="./js/fileSaver.js"></script>
+        <script src="./js/jscolor.js"></script>
+        <script src="./js/CCapture.all.min.js"></script>
+        
+	    <script type="module" src="./js/scatter.js"></script>
+	    
+	    
+	    
+	</body>
+</html>

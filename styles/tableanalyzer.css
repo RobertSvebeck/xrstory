@@ -1,0 +1,142 @@
+.start {
+	width: 600px;
+	height: 300px;
+	box-shadow: 0px 0px 12px rgba(50,50,0,0.5);
+	border: 5px solid rgba(150,150,150,0.9);
+	font-family: Helvetica, sans-serif;
+	text-align: center;
+	line-height: normal;
+	cursor: default;
+	border-radius: 40px;
+}
+.start:hover {
+	box-shadow: 0px 0px 12px rgba(0,255,200,0.75);
+	background-color: rgba(0,255,200,0.5);
+	border: 1px solid rgba(127,255,100,0.75);
+}
+.start .info1 {
+	position: absolute;
+	top: 20px;
+	left: 0px;
+	right: 0px;
+	font-size: 30px;
+	font-weight: bold;
+	color: rgba(255,255,255,0.75);
+}	
+
+.start .info2 {
+	position: absolute;
+	top: 100px;
+	left: 0px;
+	right: 0px;
+	font-size: 60px;
+	font-weight: bold;
+	color: rgba(255,255,255,0.75);
+	text-shadow: 0 0 10px rgba(100,255,100,0.95);
+}
+
+.start .info3 {
+	position: absolute;
+	bottom: 20px;
+	left: 0px;
+	right: 0px;
+	font-size: 30px;
+	font-weight: bold;
+	color: rgba(255,255,255,0.75);
+}
+
+.file {
+	width: 600px;
+	height: 300px;
+	box-shadow: 0px 0px 12px rgba(0,50,50,0.5);
+	border: 5px solid black;
+	font-family: Helvetica, sans-serif;
+	text-align: center;
+	line-height: normal;
+	cursor: default;
+	border-radius: 40px;
+}
+
+.file:hover {
+	box-shadow: 0px 0px 12px rgba(0,255,200,0.75);
+	border: 1px solid rgba(127,255,100,0.75);
+}
+
+.file .header {
+	position: absolute;
+	top: 15px;
+	left: 0px;
+	right: 0px;
+	font-size: 20px;
+	color: rgba(127,255,255,0.75);
+	
+}
+
+.file .fileName {
+	position: absolute;
+	top: 120px;
+	left: 0px;
+	right: 0px;
+	font-size: 30px;
+	font-weight: bold;
+	color: rgba(255,255,255,0.75);
+	text-shadow: 0 0 10px rgba(0,255,255,0.95);
+}
+
+.file .details {
+	position: absolute;
+	bottom: 40px;
+	left: 0px;
+	right: 0px;
+	font-size: 20px;
+	color: rgba(127,255,100,0.75);
+}
+
+.element {
+	width: 160px;
+	height: 120px;
+	box-shadow: 0px 0px 12px rgba(0,200,255,0.5);
+	border: 1px solid rgba(127,255,100,0.25);
+	font-family: Helvetica, sans-serif;
+	text-align: center;
+	line-height: normal;
+	cursor: default;
+	border-radius: 20px;
+}
+
+.element:hover {
+	box-shadow: 0px 0px 12px rgba(0,255,200,0.75);
+	border: 1px solid rgba(127,255,100,0.75);
+}
+
+	.element .rowNumber {
+		position: absolute;
+		top: 5px;
+		left: 0px;
+		right: 0px;
+		font-size: 12px;
+		color: rgba(127,255,255,0.75);
+		
+	}
+
+	.element .fieldName {
+		position: absolute;
+		top: 30px;
+		left: 0px;
+		right: 0px;
+		font-size: 18px;
+		font-weight: bold;
+		color: rgba(255,255,255,0.75);
+		text-shadow: 0 0 10px rgba(0,255,255,0.95);
+	}
+
+	.element .details {
+		position: absolute;
+		bottom: 5px;
+		left: 0px;
+		right: 0px;
+		font-size: 10px;
+		color: rgba(127,255,100,0.75);
+	}
+
+

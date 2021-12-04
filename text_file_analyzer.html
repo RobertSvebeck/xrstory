@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Text-File Analyzer</title>
+		<meta charset="utf-8">
+		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="./styles/main.css">
+		<style>
+		
+		    body {
+		        background: black;
+		    }
+			a {
+				color: #8ff;
+			}
+
+			#menu {
+				position: absolute;
+				top: 80px;
+				width: 100%;
+				text-align: center;
+			}
+
+			.start {
+				width: 600px;
+				height: 300px;
+				box-shadow: 0px 0px 12px rgba(50,50,0,0.5);
+				border: 5px solid rgba(150,150,150,0.9);
+				font-family: Helvetica, sans-serif;
+				text-align: center;
+				line-height: normal;
+				cursor: default;
+				border-radius: 40px;
+			}
+			.start:hover {
+				box-shadow: 0px 0px 12px rgba(0,255,200,0.75);
+				background-color: rgba(0,255,200,0.5);
+				border: 1px solid rgba(127,255,100,0.75);
+			}
+		    .start .info1 {
+				position: absolute;
+				top: 20px;
+				left: 0px;
+				right: 0px;
+				font-size: 30px;
+				font-weight: bold;
+				color: rgba(255,255,255,0.75);
+			}		
+		    .start .info2 {
+				position: absolute;
+				top: 100px;
+				left: 0px;
+				right: 0px;
+				font-size: 60px;
+				font-weight: bold;
+				color: rgba(255,255,255,0.75);
+				text-shadow: 0 0 10px rgba(100,255,100,0.95);
+			}
+		    .start .info3 {
+				position: absolute;
+				bottom: 20px;
+				left: 0px;
+				right: 0px;
+				font-size: 30px;
+				font-weight: bold;
+				color: rgba(255,255,255,0.75);
+			}
+			.file {
+				width: 600px;
+				height: 300px;
+				box-shadow: 0px 0px 12px rgba(0,50,50,0.5);
+				border: 5px solid black;
+				font-family: Helvetica, sans-serif;
+				text-align: center;
+				line-height: normal;
+				cursor: default;
+				border-radius: 40px;
+			}
+			.file:hover {
+				box-shadow: 0px 0px 12px rgba(0,255,200,0.75);
+				border: 1px solid rgba(127,255,100,0.75);
+			}
+			.file .header {
+				position: absolute;
+				top: 15px;
+				left: 0px;
+				right: 0px;
+				font-size: 20px;
+				color: rgba(127,255,255,0.75);
+				
+			}
+		    .file .fileName {
+				position: absolute;
+				top: 120px;
+				left: 0px;
+				right: 0px;
+				font-size: 30px;
+				font-weight: bold;
+				color: rgba(255,255,255,0.75);
+				text-shadow: 0 0 10px rgba(0,255,255,0.95);
+			}
+			.file .details {
+				position: absolute;
+				bottom: 40px;
+				left: 0px;
+				right: 0px;
+				font-size: 20px;
+				color: rgba(127,255,100,0.75);
+			}
+
+
+
+			.element {
+				width: 160px;
+				height: 120px;
+				box-shadow: 0px 0px 12px rgba(0,200,255,0.5);
+				border: 1px solid rgba(127,255,100,0.25);
+				font-family: Helvetica, sans-serif;
+				text-align: center;
+				line-height: normal;
+				cursor: default;
+				border-radius: 20px;
+			}
+
+			.element:hover {
+				box-shadow: 0px 0px 12px rgba(0,255,200,0.75);
+				border: 1px solid rgba(127,255,100,0.75);
+			}
+
+				.element .rowNumber {
+					position: absolute;
+					top: 5px;
+					left: 0px;
+					right: 0px;
+					font-size: 12px;
+					color: rgba(127,255,255,0.75);
+					
+				}
+
+				.element .fieldName {
+					position: absolute;
+					top: 30px;
+					left: 0px;
+					right: 0px;
+					font-size: 18px;
+					font-weight: bold;
+					color: rgba(255,255,255,0.75);
+					text-shadow: 0 0 10px rgba(0,255,255,0.95);
+				}
+
+				.element .details {
+					position: absolute;
+					bottom: 5px;
+					left: 0px;
+					right: 0px;
+					font-size: 10px;
+					color: rgba(127,255,100,0.75);
+				}
+
+			button {
+				color: rgba(50,50,50,0.75);
+				background: transparent;
+				outline: 1px solid rgba(50,50,50,0.75);
+				border: 0px;
+				padding: 5px 10px;
+				cursor: pointer;
+			}
+
+			button:hover {
+				background-color: rgba(0,255,200,0.5);
+			}
+
+			button:active {
+				color: #000000;
+				background-color: rgba(0,255,255,0.75);
+			}
+		</style>
+	</head>
+	<body>
+        <div class="top">
+	        
+	        <a href="https://xrstory.io/free-tools"><img class="logo" src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150" ></a>
+            <h2>Text-File Analyzer</h2>
+            <br>
+            <input hidden type='file' id="csvFile" accept=".csv, .txt,.tab">
+        </div>
+		
+		<div id="container"></div>
+		
+		<div id="menu">
+			<button id="flat">FLAT</button>
+			<button id="sphere">SPHERE</button>
+			<button id="helix">HELIX</button>
+			<button id="grid">GRID</button>
+		</div>
+
+		<script type="module">
+
+			import * as THREE from 'Https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js';
+
+			import { TWEEN } from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/libs/tween.module.min.js';
+			import { TrackballControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/controls/TrackballControls.js';
+			import { CSS3DRenderer, CSS3DObject } from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/examples/jsm/renderers/CSS3DRenderer.js';
+
+			let camera, scene, renderer;
+			let controls;
+			let pointer,raycaster,intersected,intersects;
+            let FieldContentGroup,FieldGroup,FileGroup,StartGroup;
+            let readData,delimiter;
+            
+            let data = [];
+			let objects = [];
+			let targets = { flat: [], sphere: [], helix: [], grid: [] };
+
+            let importFileName,noOfFields,noOfRows,rowsAndCols,rowsAndColAndDepth;
+            
+            document.getElementById("csvFile").addEventListener('change', (event) => { 
+            
+                const userFile = csvFile.files[0];   
+                const userFileURL = URL.createObjectURL( userFile );
+                importFileName=userFile.name;
+                
+                let reader = new FileReader();
+                reader.readAsText(userFile);
+                reader.onload = loadHandler;
+
+            });
+            
+			init();
+			animate();
+
+			function init() {
+
+				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.z = 1000;
+      
+                
+				scene = new THREE.Scene();
+
+                StartGroup = new THREE.Group();
+	            scene.add( StartGroup );
+
+                FileGroup = new THREE.Group();
+	            scene.add( FileGroup );
+
+                FieldGroup = new THREE.Group();
+	            scene.add( FieldGroup );
+	            
+                FieldContentGroup = new THREE.Group();
+	            scene.add( FieldContentGroup );
+	            
+				renderer = new CSS3DRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.getElementById( 'container' ).appendChild( renderer.domElement );
+
+				controls = new TrackballControls( camera, renderer.domElement );
+				controls.minDistance = 0;
+				controls.maxDistance = 6000;
+				controls.addEventListener( 'change', render );
+
+				const buttonFlat = document.getElementById( 'flat' );
+				buttonFlat.addEventListener( 'click', function () {
+
+					transform( targets.flat, 1000 );
+
+				} );
+
+				const buttonSphere = document.getElementById( 'sphere' );
+				buttonSphere.addEventListener( 'click', function () {
+
+					transform( targets.sphere, 1000 );
+
+				} );
+
+				const buttonHelix = document.getElementById( 'helix' );
+				buttonHelix.addEventListener( 'click', function () {
+
+					transform( targets.helix, 1000 );
+
+				} );
+
+				const buttonGrid = document.getElementById( 'grid' );
+				buttonGrid.addEventListener( 'click', function () {
+
+					transform( targets.grid, 1000 );
+
+				} );
+
+				window.addEventListener( 'resize', onWindowResize );
+				
+                createStartObject('Start by importing a text-file.','Click Here to Import','Then navigate the file by clicking and double clicking on objects.');
+                
+                render();
+			}
+
+
+            function positionObjects () {
+
+				createSpehere();
+
+                createHelix();
+
+				createGrid();
+            }
+
+            function createGrid () {
+                
+                const vector = new THREE.Vector3();
+                const distanceBetween = 500;
+                
+				for ( let i = 0; i < objects.length; i ++ ) {
+
+					const object = new THREE.Object3D();
+
+					object.position.x = ( ( i % rowsAndColAndDepth ) * distanceBetween ) - rowsAndCols*180/2;
+					object.position.y = ( ( - Math.floor( i / rowsAndColAndDepth ) % rowsAndColAndDepth ) * distanceBetween ) + rowsAndCols*140/2;
+					object.position.z = ( ( - Math.floor( i / (rowsAndColAndDepth*rowsAndColAndDepth) ) ) * distanceBetween ) - (rowsAndColAndDepth*400);
+
+					targets.grid.push( object );
+
+				}
+            }
+
+            function createHelix () {
+                
+                const vector = new THREE.Vector3();
+                
+				for ( let i = 0, l = objects.length; i < l; i ++ ) {
+
+					const theta = i * 0.175 + Math.PI;
+					const y = - ( i * 8 ) + 450;
+
+					const object = new THREE.Object3D();
+
+					object.position.setFromCylindricalCoords( 900, theta, y );
+
+					vector.x = object.position.x * 2;
+					vector.y = object.position.y;
+					vector.z = object.position.z * 2;
+
+					object.lookAt( vector );
+
+					targets.helix.push( object );
+
+				}
+            }
+
+
+            function createSpehere () {
+                
+				const vector = new THREE.Vector3();
+
+				for ( let i = 0, l = objects.length; i < l; i ++ ) {
+
+					const phi = Math.acos( - 1 + ( 2 * i ) / l );
+					const theta = Math.sqrt( l * Math.PI ) * phi;
+
+					const object = new THREE.Object3D();
+
+					object.position.setFromSphericalCoords( 800, phi, theta );
+
+					vector.copy( object.position ).multiplyScalar( 2 );
+
+					object.lookAt( vector );
+
+					targets.sphere.push( object );
+
+				}
+            }
+
+
+            function createStartObject (text1,text2,text3) {
+
+				const element = document.createElement( 'div' );
+				element.className = 'start';
+
+				const info1 = document.createElement( 'div' );
+				info1.className = 'info1';
+				info1.innerHTML = text1;
+				element.appendChild( info1 );
+				
+				const info2 = document.createElement( 'div' );
+				info2.className = 'info2';
+				info2.innerHTML = text2;
+				element.appendChild( info2 );
+
+				const info3 = document.createElement( 'div' );
+				info3.className = 'info3';
+				info3.innerHTML = text3;
+				element.appendChild( info3 );		
+				
+				const objectCSS = new CSS3DObject( element );
+
+				objectCSS.position.x = 0;
+				objectCSS.position.y = 0;
+				objectCSS.rotation.x = - Math.PI / 4;
+                element.parent = objectCSS;
+				objectCSS.element.onclick = function() {
+				    
+				    document.getElementById('csvFile').click(); 
+				    
+				};
+				
+				StartGroup.add( objectCSS );
+
+            }
+            
+
+            function createFileObject (FileName,details) {
+
+				const element = document.createElement( 'div' );
+				element.className = 'file';
+				element.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                element.style.width = 200;
+                element.style.height = 200;
+				element.style.border = '2px solid rgba(50,50,50,1)';
+				element.style.fontsize = '80px';
+                
+                const rowNumber = document.createElement( 'div' );
+				rowNumber.className = 'header';
+				rowNumber.textContent = 'FileName';
+				element.appendChild( rowNumber );
+
+				const fieldName = document.createElement( 'div' );
+				fieldName.className = 'fileName';
+				fieldName.textContent = FileName;
+				element.appendChild( fieldName );
+
+				const detailsElement = document.createElement( 'div' );
+				detailsElement.className = 'details';
+				detailsElement.innerHTML = details;
+				element.appendChild( detailsElement );
+
+				const objectCSS = new CSS3DObject( element );
+				
+				FileGroup.add( objectCSS );
+
+				//const object = new THREE.Object3D();
+				objectCSS.position.x = 0;
+				objectCSS.position.y = -500;
+				objectCSS.rotation.x = - Math.PI / 4;
+				
+				element.parent = objectCSS;
+				objectCSS.element.ondblclick = function() {
+
+				    document.getElementById('csvFile').click(); 
+				    
+				};
+
+            }
+            function createFieldObject (rowNumber,fieldName,details) {
+
+				const element = document.createElement( 'div' );
+				element.className = 'element';
+				element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+
+				const rowNumberElement = document.createElement( 'div' );
+				rowNumberElement.className = 'rowNumber';
+				rowNumberElement.textContent = 'Column: ' + rowNumber;
+				element.appendChild( rowNumberElement );
+
+				const fieldNameElement = document.createElement( 'div' );
+				fieldNameElement.className = 'fieldName';
+				fieldNameElement.textContent = fieldName;
+				element.appendChild( fieldNameElement );
+
+				const detailsElement = document.createElement( 'div' );
+				detailsElement.className = 'details';
+				detailsElement.innerHTML = details;
+				element.appendChild( detailsElement );
+
+				const objectCSS = new CSS3DObject( element );
+				
+				FieldGroup.add( objectCSS );
+
+				//const object = new THREE.Object3D();
+				objectCSS.position.x = 0;
+				objectCSS.position.y = -500;
+				objectCSS.rotation.x = - Math.PI / 4;
+				element.parent = objectCSS;
+				objectCSS.element.ondblclick = function() {
+
+				    BuildObjects(readData);
+				    
+				};
+
+            }
+            
+            function createFieldObjects (rowNumber,fieldName,details,row,col) {
+
+				const element = document.createElement( 'div' );
+				element.className = 'element';
+				element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+
+				const rowNumberElement = document.createElement( 'div' );
+				rowNumberElement.className = 'rowNumber';
+				rowNumberElement.textContent = 'Column: ' + rowNumber;
+				element.appendChild( rowNumberElement );
+
+				const fieldNameElement = document.createElement( 'div' );
+				fieldNameElement.className = 'fieldName';
+				fieldNameElement.textContent = fieldName;
+				element.appendChild( fieldNameElement );
+
+				const detailsElement = document.createElement( 'div' );
+				detailsElement.className = 'details';
+				detailsElement.innerHTML = details;
+				element.appendChild( detailsElement );
+
+				const objectCSS = new CSS3DObject( element );
+				objectCSS.position.x = Math.random() * 4000 - 2000;
+				objectCSS.position.y = Math.random() * 4000 - 2000;
+				objectCSS.position.z = Math.random() * 4000 - 2000;
+				
+				FieldGroup.add( objectCSS );
+
+				objects.push( objectCSS );
+
+				const object = new THREE.Object3D();
+				object.position.x = ( row * 180 ) - rowsAndCols*180/2;
+				object.position.y = - ( col * 140 ) + rowsAndCols*140/2;
+                object.position.z = -200;
+
+				
+				targets.flat.push( object );
+				
+				element.parent = objectCSS;
+				element.parent.userData.rowNumber = rowNumber;
+				element.parent.userData.fieldName = fieldName;
+				element.parent.userData.details = details;
+				element.parent.userData.clicked = false;
+				
+				objectCSS.element.ondblclick = function() {
+	    
+				    loadHandlerRowDetails(element.parent.userData.rowNumber, element.parent.userData.fieldName, element.parent.userData.details);
+
+				};
+
+				objectCSS.element.onclick = function() {
+				    
+				    if ( this.parent.userData.clicked ) { 
+				        
+				        this.parent.userData.clicked = false; // this.parent.position.z =+ 10;
+				        this.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+				        
+				    } else {
+				        
+				        this.parent.userData.clicked = true;
+				        this.style.backgroundColor = 'rgba(0,0,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+				        
+				    }
+				    
+				    render();
+				    
+				};    
+				
+            }
+
+            function createFieldValueObjects (fieldName,rowNumber,fieldValue,row,col) {
+                
+
+				const element = document.createElement( 'div' );
+				element.className = 'element';
+				element.style.backgroundColor = 'rgba(127,127,0,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+
+				const rowNumberElement = document.createElement( 'div' );
+				rowNumberElement.className = 'rowNumber';
+				rowNumberElement.textContent = fieldName;
+				element.appendChild( rowNumberElement );
+
+				const fieldNameElement = document.createElement( 'div' );
+				fieldNameElement.className = 'fieldName';
+				fieldNameElement.textContent = fieldValue;
+				element.appendChild( fieldNameElement );
+
+				const detailsElement = document.createElement( 'div' );
+				detailsElement.className = 'details';
+				detailsElement.innerHTML = 'Row: ' + rowNumber;
+				element.appendChild( detailsElement );
+
+				const objectCSS = new CSS3DObject( element );
+				objectCSS.position.x = Math.random() * 4000 - 2000;
+				objectCSS.position.y = Math.random() * 4000 - 2000;
+				objectCSS.position.z = Math.random() * 4000 - 2000;
+				
+				FieldContentGroup.add( objectCSS );
+
+				objects.push( objectCSS );
+
+				const object = new THREE.Object3D();
+				object.position.x = ( row * 180 ) - rowsAndCols*180/2;
+				object.position.y = - ( col * 140 ) + rowsAndCols*140/2;
+                object.position.z = -200;
+
+				
+				targets.flat.push( object );
+				
+				element.parent = objectCSS;
+				element.parent.userData.fieldName = fieldName;
+				element.parent.userData.rowNumber = rowNumber;
+				element.parent.userData.fieldValue = fieldValue;
+				element.parent.userData.clicked = false;
+				objectCSS.element.click = function() {
+				    
+				    if ( this.parent.userData.clicked ) { 
+				        this.parent.userData.clicked = false; // this.parent.position.z =+ 10;
+				        this.style.backgroundColor = 'rgba(0,127,0,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+				    } else {
+				        this.parent.userData.clicked = true;
+				        element.style.backgroundColor = 'rgba(127,127,0,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+				        
+				    }
+				    
+				    render();
+			    };
+
+            }
+
+            
+
+            function loadHandlerRowDetails (rowNumber,fieldName,details) {
+                objects = [];
+                targets = { flat: [], sphere: [], helix: [], grid: [] };   
+                StartGroup.remove(...StartGroup.children); 
+                FileGroup.remove(...FileGroup.children); 
+                FieldGroup.remove(...FieldGroup.children); 
+                FieldContentGroup.remove(...FieldContentGroup.children);
+                var row=0,col=0;
+                
+                const uniqueValues = [ ... new Set(readData.map((o) => o[fieldName]))];
+                
+                noOfRows = uniqueValues.length;
+                
+                console.log(noOfRows);
+                
+                rowsAndCols = 1;
+                rowsAndColAndDepth = 1;
+                
+                if ( noOfRows > 3 ) {
+                    
+                    rowsAndCols = Math.ceil(Math.sqrt(noOfRows))-1;
+                    rowsAndColAndDepth = Math.ceil(Math.cbrt(noOfRows))-1;                    
+                }  
+                
+                for ( let i = 0; i < uniqueValues.length; i ++ ) {
+           
+                    createFieldValueObjects (fieldName,i,uniqueValues[i],col,row)
+        
+                    if( col == rowsAndCols  ) { col = 0; row++; } else {col++;}
+   
+                }      
+                
+                createFieldObject (rowNumber,fieldName,details);
+                
+                positionObjects ();
+                
+                render();
+                
+                transform( targets.flat, 1000 );
+                
+            }
+
+            function BuildObjects(data) {
+                
+                camera.position.z = 3000;
+                
+                objects = [];
+                targets = { flat: [], sphere: [], helix: [], grid: [] };
+                
+                StartGroup.remove(...StartGroup.children); 
+                FileGroup.remove(...FileGroup.children); 
+                FieldGroup.remove(...FieldGroup.children); 
+                FieldContentGroup.remove(...FieldContentGroup.children);
+
+                noOfFields = Object.keys(data[0]).length;
+                noOfRows = data.length;
+ 
+                rowsAndCols = 1;
+                rowsAndColAndDepth = 1;
+                
+                if ( noOfFields > 3 ) {
+                    
+                    rowsAndCols = Math.ceil(Math.sqrt(noOfFields))-1;
+                    rowsAndColAndDepth = Math.ceil(Math.cbrt(noOfFields))-1;                    
+                }                
+
+                var row=0,col=0;
+                var Fields=[];
+                var NoOfUniqueValues=[];
+                var min=[];
+                var max=[];
+                var fieldNumeric=[];
+                
+                for (var key in data[0]) {
+                    if (data[0].hasOwnProperty(key)) {
+                        //const thisArray=[ ... new Set(data.map((o) => o[key]))];
+                        Fields.push(key);
+                        NoOfUniqueValues.push( [ ... new Set(data.map((o) => o[key]))].length );
+                        min.push( Math.max.apply( null, data.map( function( item ) { return item[key]; } ) ) );
+                        max.push( Math.min.apply( null, data.map( function( item ) { return item[key]; } ) ) );
+                        //console.log(key + ': ' + thisArray)
+                        //fieldNumeric.push( !data[key].some( isNaN ) );
+                    }
+                }
+
+                for ( let i = 0; i < Fields.length; i ++ ) {
+                    const detailInfo = 
+                      'No of unique values: ' + NoOfUniqueValues[i] 
+                    + '<br>Numeric: ' + fieldNumeric[i] 
+                    + '<br>Max: ' + max[i]
+                    + '<br>Min: ' + min[i]
+                    createFieldObjects (i,Fields[i],detailInfo,col,row);
+
+                    if( col == rowsAndCols  ) { col = 0; row++; } else {col++;}
+                }
+                
+                
+                createFileObject (importFileName, 'Delimiter is ' + delimiter + '<br>' + noOfFields + ' fields<br>' + noOfRows + ' rows');
+                
+                positionObjects ();
+    
+                render();
+                
+                transform( targets.flat, 1000 );                
+
+            }
+
+            function loadHandler(event) {
+
+            	var csv = event.target.result;
+            	
+            	const tab = csv.slice(0, csv.indexOf("\r\n")).split("\t");
+            	const pipe = csv.slice(0, csv.indexOf("\r\n")).split('|');
+            	const semicolon = csv.slice(0, csv.indexOf("\r\n")).split(';');
+            	const comma = csv.slice(0, csv.indexOf("\r\n")).split(',');
+  	
+            	if ( tab.length > 1 ) { delimiter = "\t" } else {
+            	    
+            	    
+            	    if ( pipe.length > semicolon.length &&  semicolon.length > 1 )  { delimiter = '|' } else {
+            	        
+            	        
+            	        if ( semicolon.length > comma.length && semicolon.length > 1 )  { delimiter = ';' } else {   
+            	            
+            	            
+            	            if ( comma.length > 1 )  { delimiter = ',' } else { delimiter = ' ' } } } };
+            	
+                readData = csvToArray(csv,delimiter);
+                
+                BuildObjects(readData);
+                
+                
+                
+
+            }
+            
+            
+            function csvToArray(str, delimiter = ";") {
+                
+              
+                const str_fixed = str.replace(/(?:\r|\n)/g, '\r\n');
+
+                const headers = str_fixed.slice(0, str_fixed.indexOf("\r\n")).split(delimiter);
+                const rows = str_fixed.slice(str_fixed.indexOf("\n") + 1).split("\r\n");
+                const arr = rows.map(function (row) {
+                    const values = row.split(delimiter);
+                    const el = headers.reduce(function (object, header, index) {
+                        object[header] = values[index];
+                        return object;
+                        }, {});
+                    return el;
+                });
+                return arr;
+                
+            }
+
+
+            function onPointerMove( event ) {
+                pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+                pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+            
+            }
+            
+
+			function transform( targets, duration ) {
+
+				TWEEN.removeAll();
+
+				for ( let i = 0; i < objects.length; i ++ ) {
+
+					const object = objects[ i ];
+					const target = targets[ i ];
+
+					new TWEEN.Tween( object.position )
+						.to( { x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration )
+						.easing( TWEEN.Easing.Elastic.In )
+						.start();
+
+					new TWEEN.Tween( object.rotation )
+						.to( { x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration )
+						.easing( TWEEN.Easing.Back.Out )
+						.start();
+
+				}
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+                
+				render();
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				TWEEN.update();
+
+				controls.update();
+
+			}
+
+			function render() {
+                //console.log(camera.rotation.x);
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
