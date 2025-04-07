@@ -355,7 +355,76 @@ body {
       opacity: 0.9;
     }
   }
-  
+  /* Add this to the end of your main.css file */
+
+/* Improved popup styling */
+.form-popup {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+  max-height: 85vh;
+}
+
+/* Add animation when opening popup */
+.form-popup {
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+.form-popup.active {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Better spacing in forms */
+.form-popup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-popup input[type="text"], 
+.form-popup input[type="number"],
+.form-popup select {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Improve fieldset styling */
+.form-popup fieldset {
+  background: rgba(0, 0, 0, 0.02);
+  margin-bottom: 20px;
+}
+
+/* Better button styling */
+.popup-button {
+  background: linear-gradient(to bottom, #555, #444);
+  transition: all 0.2s ease;
+}
+
+.popup-button:hover {
+  background: linear-gradient(to bottom, #feb41e, #e6a014);
+}
+
+/* Improved close button */
+.close-button {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
   @media (max-width: 900px) {
     .top {
       z-index: 1;
