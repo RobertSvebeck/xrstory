@@ -1,67 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en">  
+	<head>
+		<title>3D Stone Logo</title>
+		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+		<base href="./">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="./styles/main.css">
+	</head>
+	<body>
+	    <div class="top">
+	        <a href="https://xrstory.io/free-tools"><img class="logo" src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150" ></a>
+            <h2>3D Stone Logo</h2>
 
-<head>
-    <title>3D Stone Logo</title>
-    <link rel="shortcut icon" type="image/png" href="./img/favicon.png" />
-    <base href="./">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link rel="stylesheet" href="./styles/main.css">
-</head>
+            <button class="popup-button" onclick="openSettings()">Settings</button>
+            <button class="popup-button" id="regenerate" title="Press this button until you are happy with how the stone looks.">Generate a new Stone</button>
+            <button class="popup-button" onclick="openExport()">Export</button>
+            <button class="popup-button" id="shot" title="With this button you can get a 2D screenshot of the current view.">Take Screenshot</button>
+            
+        </div> 
+        
+        <div class="form-popup" id="settings">
+            <h2 class="popup-header">Settings</h2>
+            <button class="close-button" type="button" onclick="closeSettings()">X</button>
+            
+            <button style="display:block;width:120px; height:30px;" onclick="document.getElementById('texture').click()" title="Press to load your image/logo (Best if it has transparent background!).">Load an image</button>
+            <input type='file' id="texture" accept=".png,.gif,.jpg" style="display:none"> 
+            <br>
+            <ul>
+                <div id='filename'></div>
+                <div id='filedataQty'></div>
+                <div id='fileStatus1'></div>
+                <div id='fileStatus2'></div>
+                <div id='fileStatus3'></div>
+                <div id='fileStatus4'></div>
+                <div id='fileStatus5'></div>
+            </ul>
+ 
+            <label><input id="double" name="side" type="checkbox"/>Image on "inside" also?</label> 
+            <br>
+            <label hidden><input hidden id="transparent" name="transparent" checked type="checkbox"/>Transparency?</label>
+            <br>
+            <label><input id="usematerial" name="usematerial" type="checkbox" checked/>Apply image</label>
+            <br>
+            
+            <input id="color" value="#888888" data-jscolor="{}"/><label><input id="usecolor" name="usecolor" type="checkbox"/>Apply color</label>
 
-<body>
-    <div class="top">
-        <a href="https://xrstory.io/"><img class="logo" src="./img/Logo_Full_White_bg.png" alt="XRSTORY"
-                width="150"></a>
-        <h2>3D Stone Logo</h2>
-
-        <button class="popup-button" onclick="openSettings()">Settings</button>
-        <button class="popup-button" id="regenerate"
-            title="Press this button until you are happy with how the stone looks.">Generate a new Stone</button>
-        <button class="popup-button" onclick="openExport()">Export</button>
-        <button class="popup-button" id="shot"
-            title="With this button you can get a 2D screenshot of the current view.">Take Screenshot</button>
-
-    </div>
-
-    <div class="form-popup" id="settings">
-        <h2 class="popup-header">Settings</h2>
-        <button class="close-button" type="button" onclick="closeSettings()">X</button>
-
-        <button style="display:block;width:120px; height:30px;" onclick="document.getElementById('texture').click()"
-            title="Press to load your image/logo (Best if it has transparent background!).">Load an image</button>
-        <input type='file' id="texture" accept=".png,.gif,.jpg" style="display:none">
-        <br>
-        <ul>
-            <div id='filename'></div>
-            <div id='filedataQty'></div>
-            <div id='fileStatus1'></div>
-            <div id='fileStatus2'></div>
-            <div id='fileStatus3'></div>
-            <div id='fileStatus4'></div>
-            <div id='fileStatus5'></div>
-        </ul>
-
-        <label><input id="double" name="side" type="checkbox" />Image on "inside" also?</label>
-        <br>
-        <label hidden><input hidden id="transparent" name="transparent" checked type="checkbox" />Transparency?</label>
-        <br>
-        <label><input id="usematerial" name="usematerial" type="checkbox" checked />Apply image</label>
-        <br>
-
-        <input id="color" value="#888888" data-jscolor="{}" /><label><input id="usecolor" name="usecolor"
-                type="checkbox" />Apply color</label>
-
-        <br><br>
-        <label>Stone Shape: </label> <br>
-        <select id="shape" name="shape">
-            <option value="0">Round</option>
-            <option value="5">Normal</option>
-            <option value="9">Bizzare</option>
-        </select>
-        <br><br>
-        <label right>Screen background color: <br><input id="screenColor" value="#AAAAAA" data-jscolor="{}" />
+            <br><br>
+		    <label>Stone Shape: </label> <br>
+            <select id="shape" name="shape">
+              <option value="0">Round</option>
+              <option value="5">Normal</option>
+              <option value="9">Bizzare</option>
+            </select>
+            <br><br>
+            <label right>Screen background color: <br><input id="screenColor" value="#AAAAAA" data-jscolor="{}"/>
             <br><br>
             <ul>
                 <div id='filename'></div>
@@ -72,71 +65,58 @@
                 <div id='fileStatus4'></div>
                 <div id='fileStatus5'></div>
             </ul>
-    </div>
-
-    <div class="form-popup" id="export">
-        <button class="close-button" type="button" onclick="closeExport()">X</button>
-        <h2 class="popup-header">Exporting</h2>
-        <fieldset>
-            <legend>Export with animation:</legend>
-            <label><input id="option_animationX" name="trs" type="checkbox" />Rotate around X</label><br>
-            <label><input id="option_animationY" name="trs" type="checkbox" />Rotate around Y</label><br>
-            <label><input id="option_animationZ" name="trs" type="checkbox" />Rotate around Z</label><br>
+        </div>
+        
+        <div class="form-popup" id="export">
+            <button  class="close-button" type="button" onclick="closeExport()">X</button>
+    		<h2 class="popup-header">Exporting</h2>
+            <fieldset>  
+                <legend>Export with animation:</legend>
+                <label><input id="option_animationX" name="trs" type="checkbox"/>Rotate around X</label><br>
+                <label><input id="option_animationY" name="trs" type="checkbox"/>Rotate around Y</label><br>
+                <label><input id="option_animationZ" name="trs" type="checkbox"/>Rotate around Z</label><br>
+			    <br>
+			    <label><input id="option_animation_dir" name="trs" type="checkbox"/>Change direction</label><br>
+			    <br>
+			    <label>Animation duration</label>
+                <select id="animDuration" name="animDuration">
+                    <option value="1">1 sec</option>
+                    <option value="5">5 sec</option>
+                    <option value="10">10 sec</option>
+                    <option value="15" selected>15 sec</option>
+                    <option value="30">30 sec</option>
+                    <option value="60">1 min</option>
+                    <option value="300">5 min</option>
+                    <option value="900">15 min</option>
+                    <option value="3600">1 hour</option>
+                </select>
+            </fieldset>         
             <br>
-            <label><input id="option_animation_dir" name="trs" type="checkbox" />Change direction</label><br>
+            <label>Export format</label>
             <br>
-            <label>Animation duration</label>
-            <select id="animDuration" name="animDuration">
-                <option value="1">1 sec</option>
-                <option value="5">5 sec</option>
-                <option value="10">10 sec</option>
-                <option value="15" selected>15 sec</option>
-                <option value="30">30 sec</option>
-                <option value="60">1 min</option>
-                <option value="300">5 min</option>
-                <option value="900">15 min</option>
-                <option value="3600">1 hour</option>
+            <select id="exportFormat" name="exportFormat">
+                <option value="1">GLB (Binary)</option>
+                <option value="2">GLTF (Text)</option>
             </select>
-        </fieldset>
-        <br>
-        <label>Export format</label>
-        <br>
-        <select id="exportFormat" name="exportFormat">
-            <option value="1">GLB (Binary)</option>
-            <option value="2">GLTF (Text)</option>
-        </select>
-        <br>
-        <br>
-        <label>Filename for saved object:</label><br>
-        <input id="gltfFileName" name="gltfFileName" type="text" maxlength="25" value="globe" />
-        <br><br>
-        <button style="width:120px; height:30px;" id="export_objects"
-            title="Here you can save this object on your computer in GLB format.">Save 3D object</button>
+            <br>
+		    <br>
+		    <label>Filename for saved object:</label><br>
+		    <input id="gltfFileName" name="gltfFileName" type="text" maxlength="25" value="globe"/>
+		    <br><br>
+		    <button style="width:120px; height:30px;" id="export_objects" title="Here you can save this object on your computer in GLB format.">Save 3D object</button>
 
-    </div>
+	    </div>
+    	    
+        <script>
+	        function openSettings() {document.getElementById("settings").style.display = "block";}
+            function closeSettings() {document.getElementById("settings").style.display = "none";}
 
-    <script>
-        function openSettings() {
-            const popup = document.getElementById("settings");
-            popup.style.display = "block";
-            // Add small delay before adding active class for animation
-            setTimeout(() => popup.classList.add("active"), 10);
-        }
-
-        function closeSettings() {
-            const popup = document.getElementById("settings");
-            popup.classList.remove("active");
-            // Wait for animation to finish before hiding
-            setTimeout(() => popup.style.display = "none", 300);
-        }
-
-        function openExport() { document.getElementById("export").style.display = "block"; }
-        function closeExport() { document.getElementById("export").style.display = "none"; }
-    </script>
-
-    <script src="./js/jscolor.js"></script>
-    <script src="https://joeiddon.github.io/perlin/perlin.js"></script>
-    <script type="module" src="./js/stone_logo.js"></script>
-</body>
-
+            function openExport() {document.getElementById("export").style.display = "block";}
+            function closeExport() {document.getElementById("export").style.display = "none";}
+        </script>
+        
+        <script src="./js/jscolor.js"></script>
+        <script src="https://joeiddon.github.io/perlin/perlin.js"></script>
+	    <script type="module" src="./js/stone_logo.js"></script>
+	</body>
 </html>

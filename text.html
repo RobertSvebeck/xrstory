@@ -1,134 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en">  
+	<head>
+		<title>3D Text</title>
+		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+		<base href="./">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="./styles/main.css">
+        <base href="./">
+	</head>
+	<body>
+		<div class="top">
+	        <a href="https://xrstory.io/free-tools"><img class="logo" src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150" ></a>
+            <h2>3D Text</h2>
+            <button class="popup-button" title="Enter your text and select styles" onclick="openSettings()">Settings</button>
+            <button class="popup-button" onclick="openExport()">Export</button>    		
+        </div>
 
-<head>
-    <title>3D Text</title>
-    <link rel="shortcut icon" type="image/png" href="./img/favicon.png" />
-    <base href="./">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link rel="stylesheet" href="./styles/main.css">
-    <base href="./">
-</head>
-
-<body>
-    <div class="top">
-        <a href="https://xrstory.io/"><img class="logo" src="./img/Logo_Full_White_bg.png" alt="XRSTORY"
-                width="150"></a>
-        <h2>3D Text</h2>
-        <button class="popup-button" title="Enter your text and select styles"
-            onclick="openSettings()">Settings</button>
-        <button class="popup-button" onclick="openExport()">Export</button>
-    </div>
-
-    <div class="form-popup" id="Settings">
-        <button class="close-button" type="button" onclick="closeSettings()">X</button>
-        <h2 class="popup-header">Settings</h2>
-        <label>Text:</label><br>
-        <input id="objText" name="objText" type="text" maxlength="25" size="25" />
-        <br>
-        <label>Font</label><br>
-        <select id="font" name="font" style="width: 150px !important; min-width: 150px; max-width: 150px;">
-            <option value="helvetiker_regular.typeface">Helvetiker</option>
-            <option value="Lucida Calligraphy_Italic">Lucida Calligraphy (Italic)</option>
-            <option value="Arial_Regular">Arial</option>
-            <option value="Bradley Hand ITC_Regular">Handwriting</option>
-            <option value="Curlz MT_Regular">Curlz</option>
-            <option value="French Script MT_Regular">French</option>
-            <option value="Times New Roman_Regular">Times</option>
-            <option selected value="Verdana_Regular">Verdana</option>
-        </select>
-        <br>
-        <label>Text "deepness"</label><br>
-        <select id="height" name="height" style="width: 150px !important; min-width: 150px; max-width: 150px;">
-            <option value="0" selected>Thin like paper</option>
-            <option value="5">Normal</option>
-            <option value="20">Deep</option>
-        </select>
-        <br>
-        <label>Style</label><br>
-        <select id="curveSegments" name="curveSegments"
-            style="width: 150px !important; min-width: 150px; max-width: 150px;">
-            <option value="1">Edgy</option>
-            <option selected value="3">Normal</option>
-            <option value="12">Smooth</option>
-        </select>
-        <br>
-        <label>Thickness</label><br>
-        <select id="bevel" name="bevel" style="width: 150px !important; min-width: 150px; max-width: 150px;">
-            <option selected value="0">Thin</option>
-            <option value="1">Thick</option>
-        </select>
-        <br>
-        <label>Color (hex):</label><br>
-        <input id="objTextColor" value="#888888" data-jscolor="{}" /><br>
-
-        <label right>Screen background color: <br><input id="screenColor" value="#AAAAAA" data-jscolor="{}" />
-    </div>
-
-    <div class="form-popup" id="export">
-        <button class="close-button" type="button" onclick="closeExport()">X</button>
-        <h2 class="popup-header">Exporting</h2>
-        <fieldset>
-            <legend>Export with animation:</legend>
-            <label><input id="option_animationX" name="trs" type="checkbox" />Rotate around X</label><br>
-            <label><input id="option_animationY" name="trs" type="checkbox" />Rotate around Y</label><br>
-            <label><input id="option_animationZ" name="trs" type="checkbox" />Rotate around Z</label><br>
+		<div class="form-popup" id="Settings">
+		    <button class="close-button" type="button" onclick="closeSettings()">X</button>
+    		<h2 class="popup-header">Settings</h2>
+            <label>Text:</label><br>
+            <input id="objText" name="objText" type="text" maxlength="25"  size="25"/>
             <br>
-            <label><input id="option_animation_dir" name="trs" type="checkbox" />Change direction</label><br>
-            <br>
-            <label>Animation duration</label>
-            <select id="animDuration" name="animDuration">
-                <option value="1">1 sec</option>
-                <option value="5">5 sec</option>
-                <option value="10">10 sec</option>
-                <option value="15" selected>15 sec</option>
-                <option value="30">30 sec</option>
-                <option value="60">1 min</option>
-                <option value="300">5 min</option>
-                <option value="900">15 min</option>
-                <option value="3600">1 hour</option>
+            <label>Font</label><br>
+            <select id="font" name="font" style="width: 150px !important; min-width: 150px; max-width: 150px;">
+              <option value="helvetiker_regular.typeface">Helvetiker</option>
+              <option value="Lucida Calligraphy_Italic">Lucida Calligraphy (Italic)</option>
+              <option value="Arial_Regular">Arial</option>
+              <option value="Bradley Hand ITC_Regular">Handwriting</option>
+              <option value="Curlz MT_Regular">Curlz</option>
+              <option value="French Script MT_Regular">French</option>
+              <option value="Times New Roman_Regular">Times</option>
+              <option selected value="Verdana_Regular">Verdana</option>
             </select>
-        </fieldset>
-        <br>
-        <label>Export format</label>
-        <br>
-        <select id="exportFormat" name="exportFormat">
-            <option value="1">GLB (Binary)</option>
-            <option value="2">GLTF (Text)</option>
-        </select>
-        <br>
-        <br>
-        <label>Filename for saved object:</label><br>
-        <input id="gltfFileName" name="gltfFileName" type="text" maxlength="25" value="" />
-        <br><br>
-        <button style="width:120px; height:30px;" id="export_objects"
-            title="Here you can save this object on your computer in GLB format.">Save 3D object</button>
+            <br>             
+            <label>Text "deepness"</label><br>
+            <select id="height" name="height" style="width: 150px !important; min-width: 150px; max-width: 150px;">
+                <option value="0" selected>Thin like paper</option>
+                <option value="5">Normal</option>
+                <option value="20">Deep</option>
+            </select>  
+            <br>
+            <label>Style</label><br>
+            <select id="curveSegments" name="curveSegments" style="width: 150px !important; min-width: 150px; max-width: 150px;">
+                <option value="1">Edgy</option>
+                <option selected value="3">Normal</option>
+                <option value="12">Smooth</option>
+            </select> 
+            <br>           
+            <label>Thickness</label><br>
+            <select id="bevel" name="bevel" style="width: 150px !important; min-width: 150px; max-width: 150px;">
+                <option selected value="0">Thin</option>
+                <option value="1">Thick</option>
+            </select> 
+            <br>
+            <label>Color (hex):</label><br>
+            <input id="objTextColor" value="#888888" data-jscolor="{}"/><br>
+            
+            <label right>Screen background color: <br><input id="screenColor" value="#AAAAAA" data-jscolor="{}"/> 
+        </div>  
+        
+        <div class="form-popup" id="export">
+            <button  class="close-button" type="button" onclick="closeExport()">X</button>
+    		<h2 class="popup-header">Exporting</h2>
+            <fieldset>  
+                <legend>Export with animation:</legend>
+                <label><input id="option_animationX" name="trs" type="checkbox"/>Rotate around X</label><br>
+                <label><input id="option_animationY" name="trs" type="checkbox"/>Rotate around Y</label><br>
+                <label><input id="option_animationZ" name="trs" type="checkbox"/>Rotate around Z</label><br>
+			    <br>
+			    <label><input id="option_animation_dir" name="trs" type="checkbox"/>Change direction</label><br>
+			    <br>
+			    <label>Animation duration</label>
+                <select id="animDuration" name="animDuration">
+                    <option value="1">1 sec</option>
+                    <option value="5">5 sec</option>
+                    <option value="10">10 sec</option>
+                    <option value="15" selected>15 sec</option>
+                    <option value="30">30 sec</option>
+                    <option value="60">1 min</option>
+                    <option value="300">5 min</option>
+                    <option value="900">15 min</option>
+                    <option value="3600">1 hour</option>
+                </select>
+            </fieldset>         
+            <br>
+            <label>Export format</label>
+            <br>
+            <select id="exportFormat" name="exportFormat">
+                <option value="1">GLB (Binary)</option>
+                <option value="2">GLTF (Text)</option>
+            </select>
+            <br>
+		    <br>
+		    <label>Filename for saved object:</label><br>
+		    <input id="gltfFileName" name="gltfFileName" type="text" maxlength="25" value=""/>
+		    <br><br>
+		    <button style="width:120px; height:30px;" id="export_objects" title="Here you can save this object on your computer in GLB format.">Save 3D object</button>
+		    
+	    </div>
 
-    </div>
-
-    <script>
-        function openSettings() {
-            const popup = document.getElementById("settings");
-            popup.style.display = "block";
-            // Add small delay before adding active class for animation
-            setTimeout(() => popup.classList.add("active"), 10);
-        }
-
-        function closeSettings() {
-            const popup = document.getElementById("settings");
-            popup.classList.remove("active");
-            // Wait for animation to finish before hiding
-            setTimeout(() => popup.style.display = "none", 300);
-        }
-
-        function openExport() { document.getElementById("export").style.display = "block"; }
-        function closeExport() { document.getElementById("export").style.display = "none"; }
-    </script>
-
-    <script src="./js/jscolor.js"></script>
-
-    <script type="module" src="./js/text.js"></script>
-</body>
-
+	    <script>
+            function openSettings() {document.getElementById("Settings").style.display = "block";}
+            function closeSettings() {document.getElementById("Settings").style.display = "none";}	    
+            
+            function openExport() {document.getElementById("export").style.display = "block";}
+            function closeExport() {document.getElementById("export").style.display = "none";}
+        </script>
+        
+        <script src="./js/jscolor.js"></script>
+        
+	    <script type="module" src="./js/text.js"></script>
+	</body>
 </html>
