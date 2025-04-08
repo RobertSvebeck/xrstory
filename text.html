@@ -1,116 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">  
-	<head>
-		<title>3D Text</title>
-		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
-		<base href="./">
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <link rel="stylesheet" href="./styles/main.css">
-        <base href="./">
-	</head>
-	<body>
-		<div class="top">
-	        <a href="https://xrstory.io/"><img class="logo" src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150" ></a>
-            <h2>3D Text</h2>
-            <button class="popup-button" title="Enter your text and select styles" onclick="openSettings()">Settings</button>
-            <button class="popup-button" onclick="openExport()">Export</button>    		
-        </div>
+  <head>
+    <title>3D Text Creator</title>
+    <link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+    <base href="./">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="./styles/text.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <a href="https://xrstory.io/" class="logo-link">
+          <img class="logo" src="./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150">
+        </a>
+        <h1 class="app-title">3D Text Creator</h1>
+        <button id="theme-toggle" class="icon-button" aria-label="Toggle theme">
+          <svg class="icon-dark" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+          <svg class="icon-light" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z"/></svg>
+        </button>
+      </header>
 
-		<div class="form-popup" id="Settings">
-		    <button class="close-button" type="button" onclick="closeSettings()">X</button>
-    		<h2 class="popup-header">Settings</h2>
-            <label>Text:</label><br>
-            <input id="objText" name="objText" type="text" maxlength="25"  size="25"/>
-            <br>
-            <label>Font</label><br>
-            <select id="font" name="font" style="width: 150px !important; min-width: 150px; max-width: 150px;">
-              <option value="helvetiker_regular.typeface">Helvetiker</option>
-              <option value="Lucida Calligraphy_Italic">Lucida Calligraphy (Italic)</option>
-              <option value="Arial_Regular">Arial</option>
-              <option value="Bradley Hand ITC_Regular">Handwriting</option>
-              <option value="Curlz MT_Regular">Curlz</option>
-              <option value="French Script MT_Regular">French</option>
-              <option value="Times New Roman_Regular">Times</option>
-              <option selected value="Verdana_Regular">Verdana</option>
-            </select>
-            <br>             
-            <label>Text "deepness"</label><br>
-            <select id="height" name="height" style="width: 150px !important; min-width: 150px; max-width: 150px;">
-                <option value="0" selected>Thin like paper</option>
-                <option value="5">Normal</option>
-                <option value="20">Deep</option>
-            </select>  
-            <br>
-            <label>Style</label><br>
-            <select id="curveSegments" name="curveSegments" style="width: 150px !important; min-width: 150px; max-width: 150px;">
-                <option value="1">Edgy</option>
-                <option selected value="3">Normal</option>
-                <option value="12">Smooth</option>
-            </select> 
-            <br>           
-            <label>Thickness</label><br>
-            <select id="bevel" name="bevel" style="width: 150px !important; min-width: 150px; max-width: 150px;">
-                <option selected value="0">Thin</option>
-                <option value="1">Thick</option>
-            </select> 
-            <br>
-            <label>Color (hex):</label><br>
-            <input id="objTextColor" value="#888888" data-jscolor="{}"/><br>
-            
-            <label right>Screen background color: <br><input id="screenColor" value="#AAAAAA" data-jscolor="{}"/> 
-        </div>  
+      <main class="main-content">
+        <!-- 3D Canvas -->
+        <div id="canvas-container" class="canvas-container"></div>
         
-        <div class="form-popup" id="export">
-            <button  class="close-button" type="button" onclick="closeExport()">X</button>
-    		<h2 class="popup-header">Exporting</h2>
-            <fieldset>  
-                <legend>Export with animation:</legend>
-                <label><input id="option_animationX" name="trs" type="checkbox"/>Rotate around X</label><br>
-                <label><input id="option_animationY" name="trs" type="checkbox"/>Rotate around Y</label><br>
-                <label><input id="option_animationZ" name="trs" type="checkbox"/>Rotate around Z</label><br>
-			    <br>
-			    <label><input id="option_animation_dir" name="trs" type="checkbox"/>Change direction</label><br>
-			    <br>
-			    <label>Animation duration</label>
-                <select id="animDuration" name="animDuration">
-                    <option value="1">1 sec</option>
-                    <option value="5">5 sec</option>
-                    <option value="10">10 sec</option>
-                    <option value="15" selected>15 sec</option>
-                    <option value="30">30 sec</option>
-                    <option value="60">1 min</option>
-                    <option value="300">5 min</option>
-                    <option value="900">15 min</option>
-                    <option value="3600">1 hour</option>
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+          <div class="tab-container">
+            <div class="tab-buttons">
+              <button id="tab-text" class="tab-button active">Text</button>
+              <button id="tab-style" class="tab-button">Style</button>
+              <button id="tab-export" class="tab-button">Export</button>
+            </div>
+            
+            <!-- Text Panel -->
+            <div id="panel-text" class="tab-panel active">
+              <h2 class="panel-title">Text Settings</h2>
+              
+              <div class="form-group">
+                <label for="objText">Your Text</label>
+                <input id="objText" class="text-input" name="objText" type="text" maxlength="25" placeholder="Enter your text here...">
+              </div>
+              
+              <div class="form-group">
+                <label for="font">Font Family</label>
+                <select id="font" name="font" class="select-input">
+                  <option value="helvetiker_regular.typeface">Helvetiker</option>
+                  <option value="Lucida Calligraphy_Italic">Lucida Calligraphy</option>
+                  <option value="Arial_Regular">Arial</option>
+                  <option value="Bradley Hand ITC_Regular">Handwriting</option>
+                  <option value="Curlz MT_Regular">Curlz</option>
+                  <option value="French Script MT_Regular">French</option>
+                  <option value="Times New Roman_Regular">Times</option>
+                  <option selected value="Verdana_Regular">Verdana</option>
                 </select>
-            </fieldset>         
-            <br>
-            <label>Export format</label>
-            <br>
-            <select id="exportFormat" name="exportFormat">
-                <option value="1">GLB (Binary)</option>
-                <option value="2">GLTF (Text)</option>
-            </select>
-            <br>
-		    <br>
-		    <label>Filename for saved object:</label><br>
-		    <input id="gltfFileName" name="gltfFileName" type="text" maxlength="25" value=""/>
-		    <br><br>
-		    <button style="width:120px; height:30px;" id="export_objects" title="Here you can save this object on your computer in GLB format.">Save 3D object</button>
-		    
-	    </div>
-
-	    <script>
-            function openSettings() {document.getElementById("Settings").style.display = "block";}
-            function closeSettings() {document.getElementById("Settings").style.display = "none";}	    
+              </div>
+            </div>
             
-            function openExport() {document.getElementById("export").style.display = "block";}
-            function closeExport() {document.getElementById("export").style.display = "none";}
-        </script>
-        
-        <script src="./js/jscolor.js"></script>
-        
-	    <script type="module" src="./js/text.js"></script>
-	</body>
+            <!-- Style Panel -->
+            <div id="panel-style" class="tab-panel">
+              <h2 class="panel-title">Style Settings</h2>
+              
+              <div class="form-group">
+                <label for="height">Text Depth</label>
+                <div class="range-control">
+                  <input type="range" id="height-range" min="0" max="20" value="0" class="range-slider">
+                  <select id="height" name="height" class="select-input">
+                    <option value="0" selected>Thin like paper</option>
+                    <option value="5">Normal</option>
+                    <option value="20">Deep</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="curveSegments">Edge Style</label>
+                <div class="style-options">
+                  <div class="style-option" data-value="1">
+                    <div class="style-preview edgy"></div>
+                    <span>Edgy</span>
+                  </div>
+                  <div class="style-option active" data-value="3">
+                    <div class="style-preview normal"></div>
+                    <span>Normal</span>
+                  </div>
+                  <div class="style-option" data-value="12">
+                    <div class="style-preview smooth"></div>
+                    <span>Smooth</span>
+                  </div>
+                </div>
+                <select id="curveSegments" name="curveSegments" class="hidden-select">
+                  <option value="1">Edgy</option>
+                  <option selected value="3">Normal</option>
+                  <option value="12">Smooth</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="bevel">Thickness</label>
+                <div class="toggle-control">
+                  <span>Thin</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="bevel-toggle">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span>Thick</span>
+                </div>
+                <select id="bevel" name="bevel" class="hidden-select">
+                  <option selected value="0">Thin</option>
+                  <option value="1">Thick</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="objTextColor">Text Color</label>
+                <div class="color-picker-container">
+                  <input id="objTextColor" value="#888888" data-jscolor="{}">
+                  <div class="color-presets">
+                    <button class="color-preset" style="background-color: #ff5252" data-color="#ff5252"></button>
+                    <button class="color-preset" style="background-color: #4caf50" data-color="#4caf50"></button>
+                    <button class="color-preset" style="background-color: #2196f3" data-color="#2196f3"></button>
+                    <button class="color-preset" style="background-color: #ff9800" data-color="#ff9800"></button>
+                    <button class="color-preset" style="background-color: #9c27b0" data-color="#9c27b0"></button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="screenColor">Background Color</label>
+                <div class="color-picker-container">
+                  <input id="screenColor" value="#AAAAAA" data-jscolor="{}">
+                  <div class="color-presets">
+                    <button class="color-preset" style="background-color: #212121" data-color="#212121"></button>
+                    <button class="color-preset" style="background-color: #f5f5f5" data-color="#f5f5f5"></button>
+                    <button class="color-preset" style="background-color: #263238" data-color="#263238"></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Export Panel -->
+            <div id="panel-export" class="tab-panel">
+              <h2 class="panel-title">Export Settings</h2>
+              
+              <div class="form-group">
+                <label>Animation</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-control">
+                    <input id="option_animationX" name="trs" type="checkbox">
+                    <span class="checkbox-label">Rotate X</span>
+                  </label>
+                  <label class="checkbox-control">
+                    <input id="option_animationY" name="trs" type="checkbox">
+                    <span class="checkbox-label">Rotate Y</span>
+                  </label>
+                  <label class="checkbox-control">
+                    <input id="option_animationZ" name="trs" type="checkbox">
+                    <span class="checkbox-label">Rotate Z</span>
+                  </label>
+                  <label class="checkbox-control">
+                    <input id="option_animation_dir" name="trs" type="checkbox">
+                    <span class="checkbox-label">Reverse direction</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="animDuration">Animation Duration</label>
+                <select id="animDuration" name="animDuration" class="select-input">
+                  <option value="1">1 second</option>
+                  <option value="5">5 seconds</option>
+                  <option value="10">10 seconds</option>
+                  <option value="15" selected>15 seconds</option>
+                  <option value="30">30 seconds</option>
+                  <option value="60">1 minute</option>
+                  <option value="300">5 minutes</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="exportFormat">Export Format</label>
+                <div class="radio-group">
+                  <label class="radio-control">
+                    <input type="radio" name="exportFormatRadio" id="exportFormatGLB" value="1" checked>
+                    <span class="radio-label">GLB (Binary)</span>
+                  </label>
+                  <label class="radio-control">
+                    <input type="radio" name="exportFormatRadio" id="exportFormatGLTF" value="2">
+                    <span class="radio-label">GLTF (Text)</span>
+                  </label>
+                </div>
+                <select id="exportFormat" name="exportFormat" class="hidden-select">
+                  <option value="1" selected>GLB (Binary)</option>
+                  <option value="2">GLTF (Text)</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="gltfFileName">Filename</label>
+                <input id="gltfFileName" name="gltfFileName" type="text" class="text-input" placeholder="my_3d_text">
+              </div>
+              
+              <button id="export_objects" class="primary-button">
+                <svg viewBox="0 0 24 24" class="button-icon"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                Export 3D Model
+              </button>
+            </div>
+          </div>
+        </aside>
+      </main>
+      
+      <!-- Toast notification -->
+      <div id="toast" class="toast">
+        <div id="toast-message"></div>
+      </div>
+    </div>
+
+    <script src="./js/jscolor.js"></script>
+    <script type="module" src="./js/text.js"></script>
+  </body>
 </html>

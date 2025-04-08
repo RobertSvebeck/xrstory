@@ -1,122 +1,198 @@
 <!DOCTYPE html>
-<html lang="en">  
-	<head>
-		<title>3D Stone Logo</title>
-		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
-		<base href="./">
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <link rel="stylesheet" href="./styles/main.css">
-	</head>
-	<body>
-	    <div class="top">
-	        <a href="https://xrstory.io/"><img class="logo" src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150" ></a>
-            <h2>3D Stone Logo</h2>
+<html lang="en">
+<head>
+  <title>3D Stone Logo Generator</title>
+  <link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <link rel="stylesheet" href="./styles/stone_logo.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="brand">
+        <a href="https://xrstory.io/">
+          <img src="./img/Logo_Full_White_bg.png" alt="XRSTORY" width="120">
+        </a>
+        <h1>3D Stone Logo Generator</h1>
+      </div>
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+        <i class="fas fa-sun"></i>
+      </button>
+    </header>
 
-            <button class="popup-button" onclick="openSettings()">Settings</button>
-            <button class="popup-button" id="regenerate" title="Press this button until you are happy with how the stone looks.">Generate a new Stone</button>
-            <button class="popup-button" onclick="openExport()">Export</button>
-            <button class="popup-button" id="shot" title="With this button you can get a 2D screenshot of the current view.">Take Screenshot</button>
-            
-        </div> 
-        
-        <div class="form-popup" id="settings">
-            <h2 class="popup-header">Settings</h2>
-            <button class="close-button" type="button" onclick="closeSettings()">X</button>
-            
-            <button style="display:block;width:120px; height:30px;" onclick="document.getElementById('texture').click()" title="Press to load your image/logo (Best if it has transparent background!).">Load an image</button>
-            <input type='file' id="texture" accept=".png,.gif,.jpg" style="display:none"> 
-            <br>
-            <ul>
-                <div id='filename'></div>
-                <div id='filedataQty'></div>
-                <div id='fileStatus1'></div>
-                <div id='fileStatus2'></div>
-                <div id='fileStatus3'></div>
-                <div id='fileStatus4'></div>
-                <div id='fileStatus5'></div>
-            </ul>
- 
-            <label><input id="double" name="side" type="checkbox"/>Image on "inside" also?</label> 
-            <br>
-            <label hidden><input hidden id="transparent" name="transparent" checked type="checkbox"/>Transparency?</label>
-            <br>
-            <label><input id="usematerial" name="usematerial" type="checkbox" checked/>Apply image</label>
-            <br>
-            
-            <input id="color" value="#888888" data-jscolor="{}"/><label><input id="usecolor" name="usecolor" type="checkbox"/>Apply color</label>
+    <main>
+      <section id="canvas-container" class="canvas-container"></section>
+      
+      <aside class="control-panel">
+        <nav class="tabs">
+          <button class="tab-btn active" data-tab="design">Design</button>
+          <button class="tab-btn" data-tab="appearance">Appearance</button>
+          <button class="tab-btn" data-tab="animation">Animation</button>
+          <button class="tab-btn" data-tab="export">Export</button>
+        </nav>
 
-            <br><br>
-		    <label>Stone Shape: </label> <br>
-            <select id="shape" name="shape">
-              <option value="0">Round</option>
-              <option value="5">Normal</option>
-              <option value="9">Bizzare</option>
-            </select>
-            <br><br>
-            <label right>Screen background color: <br><input id="screenColor" value="#AAAAAA" data-jscolor="{}"/>
-            <br><br>
-            <ul>
-                <div id='filename'></div>
-                <div id='filedataQty'></div>
-                <div id='fileStatus1'></div>
-                <div id='fileStatus2'></div>
-                <div id='fileStatus3'></div>
-                <div id='fileStatus4'></div>
-                <div id='fileStatus5'></div>
-            </ul>
-        </div>
-        
-        <div class="form-popup" id="export">
-            <button  class="close-button" type="button" onclick="closeExport()">X</button>
-    		<h2 class="popup-header">Exporting</h2>
-            <fieldset>  
-                <legend>Export with animation:</legend>
-                <label><input id="option_animationX" name="trs" type="checkbox"/>Rotate around X</label><br>
-                <label><input id="option_animationY" name="trs" type="checkbox"/>Rotate around Y</label><br>
-                <label><input id="option_animationZ" name="trs" type="checkbox"/>Rotate around Z</label><br>
-			    <br>
-			    <label><input id="option_animation_dir" name="trs" type="checkbox"/>Change direction</label><br>
-			    <br>
-			    <label>Animation duration</label>
-                <select id="animDuration" name="animDuration">
-                    <option value="1">1 sec</option>
-                    <option value="5">5 sec</option>
-                    <option value="10">10 sec</option>
-                    <option value="15" selected>15 sec</option>
-                    <option value="30">30 sec</option>
-                    <option value="60">1 min</option>
-                    <option value="300">5 min</option>
-                    <option value="900">15 min</option>
-                    <option value="3600">1 hour</option>
-                </select>
-            </fieldset>         
-            <br>
-            <label>Export format</label>
-            <br>
-            <select id="exportFormat" name="exportFormat">
+        <div class="tab-content">
+          <!-- Design Tab -->
+          <div id="design" class="tab-pane active">
+            <h2>Stone Shape</h2>
+            <div class="shape-selector">
+              <div class="shape-option selected" data-value="0">
+                <div class="shape-preview round"></div>
+                <span>Round</span>
+              </div>
+              <div class="shape-option" data-value="5">
+                <div class="shape-preview normal"></div>
+                <span>Normal</span>
+              </div>
+              <div class="shape-option" data-value="9">
+                <div class="shape-preview bizarre"></div>
+                <span>Bizarre</span>
+              </div>
+            </div>
+            
+            <button id="regenerate" class="btn primary-btn">
+              <i class="fas fa-dice"></i> Generate New Stone
+            </button>
+            
+            <h2>Logo Image</h2>
+            <div class="file-upload">
+              <label for="texture" class="btn secondary-btn">
+                <i class="fas fa-upload"></i> Upload Logo Image
+              </label>
+              <input type="file" id="texture" accept=".png,.gif,.jpg">
+              <p id="file-name">No file selected</p>
+            </div>
+            
+            <div class="toggle-group">
+              <label class="toggle">
+                <input id="usematerial" type="checkbox" checked>
+                <span class="slider"></span>
+                <span>Apply image</span>
+              </label>
+              
+              <label class="toggle">
+                <input id="double" type="checkbox">
+                <span class="slider"></span>
+                <span>Show on inside</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Appearance Tab -->
+          <div id="appearance" class="tab-pane">
+            <h2>Color Settings</h2>
+            
+            <div class="form-group">
+              <label for="screenColor">Background Color</label>
+              <input type="color" id="screenColor" value="#AAAAAA">
+              
+              <div class="color-presets">
+                <button class="color-preset" data-color="#AAAAAA" style="background-color: #AAAAAA;"></button>
+                <button class="color-preset" data-color="#2C3E50" style="background-color: #2C3E50;"></button>
+                <button class="color-preset" data-color="#3498DB" style="background-color: #3498DB;"></button>
+                <button class="color-preset" data-color="#E74C3C" style="background-color: #E74C3C;"></button>
+                <button class="color-preset" data-color="#27AE60" style="background-color: #27AE60;"></button>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="color">Stone Color</label>
+              <input type="color" id="color" value="#888888">
+              
+              <label class="toggle">
+                <input id="usecolor" type="checkbox">
+                <span class="slider"></span>
+                <span>Apply color</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Animation Tab -->
+          <div id="animation" class="tab-pane">
+            <h2>Rotation Settings</h2>
+            
+            <div class="toggle-group">
+              <label class="toggle">
+                <input id="option_animationX" type="checkbox">
+                <span class="slider"></span>
+                <span>Rotate X axis</span>
+              </label>
+              
+              <label class="toggle">
+                <input id="option_animationY" type="checkbox">
+                <span class="slider"></span>
+                <span>Rotate Y axis</span>
+              </label>
+              
+              <label class="toggle">
+                <input id="option_animationZ" type="checkbox">
+                <span class="slider"></span>
+                <span>Rotate Z axis</span>
+              </label>
+              
+              <label class="toggle">
+                <input id="option_animation_dir" type="checkbox">
+                <span class="slider"></span>
+                <span>Reverse direction</span>
+              </label>
+            </div>
+            
+            <div class="form-group">
+              <label for="animDuration">Animation Duration</label>
+              <select id="animDuration">
+                <option value="1">1 second</option>
+                <option value="5">5 seconds</option>
+                <option value="10">10 seconds</option>
+                <option value="15" selected>15 seconds</option>
+                <option value="30">30 seconds</option>
+                <option value="60">1 minute</option>
+                <option value="300">5 minutes</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Export Tab -->
+          <div id="export" class="tab-pane">
+            <h2>Export Your Creation</h2>
+            
+            <div class="form-group">
+              <label for="exportFormat">File Format</label>
+              <select id="exportFormat">
                 <option value="1">GLB (Binary)</option>
                 <option value="2">GLTF (Text)</option>
-            </select>
-            <br>
-		    <br>
-		    <label>Filename for saved object:</label><br>
-		    <input id="gltfFileName" name="gltfFileName" type="text" maxlength="25" value="globe"/>
-		    <br><br>
-		    <button style="width:120px; height:30px;" id="export_objects" title="Here you can save this object on your computer in GLB format.">Save 3D object</button>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="gltfFileName">Filename</label>
+              <input type="text" id="gltfFileName" value="stone" maxlength="25">
+            </div>
+            
+            <div class="button-group">
+              <button id="export_objects" class="btn primary-btn">
+                <i class="fas fa-download"></i> Export 3D Model
+              </button>
+              
+              <button id="shot" class="btn secondary-btn">
+                <i class="fas fa-camera"></i> Take Screenshot
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+    
+    <div id="toast" class="toast">
+      <div class="toast-icon"></div>
+      <div class="toast-message"></div>
+    </div>
+  </div>
 
-	    </div>
-    	    
-        <script>
-	        function openSettings() {document.getElementById("settings").style.display = "block";}
-            function closeSettings() {document.getElementById("settings").style.display = "none";}
-
-            function openExport() {document.getElementById("export").style.display = "block";}
-            function closeExport() {document.getElementById("export").style.display = "none";}
-        </script>
-        
-        <script src="./js/jscolor.js"></script>
-        <script src="https://joeiddon.github.io/perlin/perlin.js"></script>
-	    <script type="module" src="./js/stone_logo.js"></script>
-	</body>
+  <script src="./js/jscolor.js"></script>
+  <script src="https://joeiddon.github.io/perlin/perlin.js"></script>
+  <script type="module" src="./js/stone_logo.js"></script>
+</body>
 </html>
