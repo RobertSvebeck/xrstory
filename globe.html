@@ -1,456 +1,686 @@
 <!DOCTYPE html>
-<html lang="en">  
-	<head>
-		<title>Globe Chart</title>
-		<link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
-		<base href="./">
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <link rel="stylesheet" href="./styles/main.css">
-	</head>
-	<body>
-	    <div class="top">
-	        <a href="https://xrstory.io/"><img class="logo" src = "./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150" ></a>
-            <h2>Globe Chart</h2>
-            
-            <button class="popup-button" onclick="openImportData()">Import Data</button>
-            <button class="popup-button" title="In this pop-up window you can save and load all kinds of settings." onclick="openSaveLoadSettings()">Save / Load Settings</button>
-    	    <button class="popup-button" onclick="openTextureSettings()">Texture and color</button>
-    	    <button class="popup-button" onclick="openOtherSettings()">Other Settings</button>
-            <button class="popup-button" onclick="openDataLabels()">Data Labels</button>
-            <button class="popup-button" onclick="openDataMarkers()">Data Markers</button>
-            
-            <button class="popup-button" title="Here you see all your current selections" onclick="openSelections()">Selections</button>
-            <button class="popup-button" onclick="openExport()">Export</button>
-            <button class="popup-button" id="resetView" title="Resets all zooms/pans and rotations you have done since the page was loaded.">Reset View</button>
-            
-            <button class="popup-button" id="shot" title="With this button you can get a 2D screenshot of the current view.">Take Screenshot</button>
-            <button class="popup-button" id="gifStartStop" title="With this button you can start/stop GIF animation recording. Plase note: After stopping the recording, it may take some time to create the GIF-animation, be patient! A 'Save File' pop-up window will appear once the GIF has been created!">GIF Start Recording</button>
-            
-        </div>    
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Globe Chart</title>
+  <link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+  <link rel="stylesheet" href="./styles/globe.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header section -->
+    <header class="app-header">
+      <div class="logo-container">
+        <a href="https://xrstory.io/">
+          <img class="logo" src="./img/Logo_Full_White_bg.png" alt="XRSTORY" width="150">
+        </a>
+      </div>
+      <h1 class="app-title">Globe Chart</h1>
+      <div class="header-controls">
+        <button id="theme-toggle" class="icon-button" title="Toggle dark/light theme">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button id="reset-view" class="icon-button" title="Reset view">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <button id="take-screenshot" class="icon-button" title="Take screenshot">
+          <i class="fas fa-camera"></i>
+        </button>
+        <button id="record-gif" class="icon-button" title="Record GIF">
+          <i class="fas fa-video"></i>
+        </button>
+      </div>
+    </header>
 
-        <div hidden class="gifRecorder" id='recordingStatus'></div>
-        <div class="hoover" id='hoover'></div>
-        
-        <div class="form-popup" id='selections'>
-            <button  class="close-button" type="button" onclick="closeSelections()">X</button>
-            <h2 class="popup-header">Current Selections</h2>
-            
-            <button disabled id="unselectAll" title="Remove all selections">Clear selections</button>
-            <button disabled id="hideSelected" title="Hide all selected objects">Hide selected</button>
-            <button disabled id="hideExcluded" title="Hide all objects that are not selected">Hide unselected</button>
-            <button id="unHideAll" title="Unhide all objects">Unhide All</button>
-            
-            <div id='selected'><p>No objects selected.</p><p>You select objects by double clicking on them.</p><p>Deselect by double clicking on a selected object.</p></div>
-            <br>
-            <button disabled id="joinSelected" title="Create a line between 2 objects (only enabled when only 2 objects are selected.">Join 2 selected</button>
-            <button id="removeJoins" title="Removes all current joins">Remove joins</button>
-            <br>
-            <label>Join Type</label>
-            <select disabled id="joinType" name="joinType">
-                <option selected value="0">Data Point</option> 
-                <option value="1" >Earth Ground</option> 
-            </select>     
-            <label>Arrow</label>
-            <select disabled id="arrowType" name="joinType">
-                <option selected value="0">None</option> 
-                <option value="1">1 to 2</option> 
-                <option value="2" >2 to 1</option> 
-                <option value="3" >2 to 2</option> 
-            </select>              
-            <br><br>
-            <label>Selected color: <br><input id="selectedColor" value="#EFEFEF" size="7" maxlength="7" data-jscolor="{}"/>
-        </div>
+    <!-- Main content area -->
+    <main class="main-content">
+      <!-- 3D Canvas container -->
+      <div id="canvas-container" class="canvas-container"></div>
+      
+      <!-- Recording status indicator -->
+      <div id="recording-status" class="recording-status" hidden>Recording in progress...</div>
+      
+      <!-- Hover information display -->
+      <div id="hover-info" class="hover-info"></div>
+    </main>
 
-        <div class="form-popup" id="saveLoadSettings">
-            <button  class="close-button" type="button" onclick="closeSaveLoadSettings()">X</button>
-    		<h2 class="popup-header">Save / Load Settings</h2>
+    <!-- Sidebar with controls -->
+    <aside class="sidebar">
+      <!-- Tab navigation -->
+      <nav class="tab-navigation">
+        <button class="tab-button active" data-tab="data">
+          <i class="fas fa-database"></i> Data
+        </button>
+        <button class="tab-button" data-tab="appearance">
+          <i class="fas fa-paint-brush"></i> Appearance
+        </button>
+        <button class="tab-button" data-tab="markers">
+          <i class="fas fa-map-marker-alt"></i> Markers
+        </button>
+        <button class="tab-button" data-tab="labels">
+          <i class="fas fa-font"></i> Labels
+        </button>
+        <button class="tab-button" data-tab="selections">
+          <i class="fas fa-object-group"></i> Selections
+        </button>
+        <button class="tab-button" data-tab="export">
+          <i class="fas fa-file-export"></i> Export
+        </button>
+      </nav>
 
-             <fieldset>  
-                <legend>Save Settings</legend>   
-    		    <label>Filename:</label><br>
-    		    
-    		    <input id="saveSettingsFileName" type="text" maxlength="25" value=""/>
-    		    <br><br>
-    		    <button style="width:120px; height:30px;" id="saveSettingsFile" title="Here you can save all your settings">Save</button>
-            </fieldset> 
-            
-            <fieldset>  
-                <legend>Load Settings</legend>   
-    		    <button style="width:120px; height:30px;" onclick="document.getElementById('loadSettingsFile').click()" title="Here you can load settings from a file">Load settings file</button>
-                <input type='file' id="loadSettingsFile" accept=".settings" style="display:none"> 
-
-                <br>
-                <ul>
-                    <div id='loadSettingsFileName'></div>
-                    <div id='loadSettingsStatus1'></div>
-                    <div id='loadSettingsStatus2'></div>
-                    <div id='loadSettingsStatus3'></div>
-                </ul>
-		    </fieldset>
-		    
-	    </div>       
-	    
-		<div class="form-popup" id="textureSettings">
-		    <button class="close-button" type="button" onclick="closeTextureSettings()">X</button>
-    		<h2 class="popup-header">Texture and Color</h2>
-            <fieldset>
-                <legend>Globe texture:</legend>
-                <p>Be patient when selecting textures. It takes some time to update the globe after!</p>
-                <label>Choose texture</label>
-                <select id="globetexture" name="globetexture">
-                    <option value="4k_clouds.jpg" checked>Light with clouds 4k</option>   
-                    <option value="8k_ std.jpg">Light 8k</option>
-                    <option value="2k_no_ice.jpg">Light with clouds 2k</option>
-                    <option value="8k_clouds.jpg">Light with clouds 8k</option>
-                    <option value="8k_no_ice.jpg">Light No Ice 8k</option>
-                    <option value="8k_night.jpg">Dark Night 8k</option>
-                    <option value="8k_dark_greys.jpg">Dark Greys 8k</option>
-                    <option value="8k_dark_edges.jpg">Dark Edges 8k</option>
-                    <option value="8k_dark_dark.jpg">Dark 8k</option>
-                    <option value="8k_bw.jpg">Dark B/W 8k</option>
-                    <option value="8k_pixl50.jpg">Light Pixelated 8k</option>
-                    <option value="8k_painting.jpg">Light Painted 8k</option>
-                    <option value="16k_clouds.jpg">Light with clouds 16k</option>
-                    <option value="water_4k_invert.png">Just Landmass</option>
-                    <option value="notexture">No Texture</option>
-                </select> 
-                <br><br>
-                <label>Texture "location"</label>
-                <select id="materialSide" name="materialSide">
-                    <option value="1" checked>Outside</option>
-                    <option value="2">Both Sides</option>
-                    <option value="3">Inside</option>
-                </select>
-                <br><br>
-                
-                <label>Sphere color: <input id="SphereColor" value="#888888" size="7" maxlength="7" data-jscolor="{}"/><br><input id="UseSphereColor" name="UseSphereColor" type="checkbox"/>Apply color</label>
-                <br><br>
-                <label><input id="transEarth" name="transEarth" type="checkbox" />Semi-transparent Earth</label><br>
-                <div class="tooltip">
-                    <label><input id="bump" name="bump" type="checkbox" />Simulate Altitudes</label><br>
-                    <span class="tooltiptext">
-                        <p>Simulated altitudes will not be exported in the 3D Globe object.</p>
-                    </span>
-                </div>
-                <label><input id="reflSea" name="reflSea" type="checkbox" />Reflective water</label><br>
-                <label><input id="reflLand" name="reflLand" type="checkbox" />Reflective land</label><br>  
-                
-            </fieldset>
-            
-        </div>
-    
-    	<div class="form-popup" id="otherSettings">
-    	    <button class="close-button" type="button" onclick="closeOtherSettings()">X</button>
-    	    <h2 class="popup-header">Other Settings</h2>
-    	    
-    	    <label><input id="showGrid" name="showGrid" type="checkbox" />Show Grid</label>
-    	    <br><br>
-
-            <label>How many grids?</label><br>
-            <select id="noOfGrids" name="noOfGrids">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
-            </select> 
-
-    	    <br><br>
-            <label right>Screen background color: <br><input id="screenColor" value="#AAAAAA" size="7" maxlength="7" data-jscolor="{}"/>
-
-            
-        </div>
-
-
-
-		<div class="form-popup" id="importData">
-		    <button class="close-button" type="button" onclick="closeImportData()">X</button>
-		    <h2 class="popup-header">Import Data</h2>
-	
-	        <p>General data import settings:</p>
-
-            <div class="tooltip">
-                <label><input id="normalize" name="normalize" type="checkbox" checked/>Normalize data</label>
-                <span class="tooltiptext">
-                    <p>When this checkbox is enabled, the data will be normalized to suitable scales, (must be checked/unchecked <b>before</b> you load the csv file).</p>
-                </span>
+      <!-- Tab content panels -->
+      <div class="tab-content">
+        <!-- Data panel -->
+        <section id="data-panel" class="panel active">
+          <h2>Import Data</h2>
+          <div class="panel-section">
+            <div class="form-group">
+              <div class="checkbox-container">
+                <input type="checkbox" id="normalize" name="normalize" checked>
+                <label for="normalize" class="tooltip">
+                  Normalize data
+                  <span class="tooltip-text">When enabled, data will be normalized to suitable scales (must be enabled before loading data)</span>
+                </label>
+              </div>
             </div>
 
-            <p>Import your own data:
-            
-                <button style="display:block;width:120px; height:30px;" onclick="document.getElementById('csvFile').click()" title="Press to load your data file. It might take a few seconds to load the data, be patient! Note that No data is uploaded to our server. This page works (when loaded) even when you are in Airplane mode.">Load a CSV file</button>
-                <input type='file' id="csvFile" accept=".csv" style="display:none"> </p>
-            <p><a href="https://xrstory.io/globe-chart" target="_blank">Read about the file format here.</a></i></p>
-            
-            <p>... or try some demo data:<br>
+            <div class="form-group">
+              <label>Import your own data</label>
+              <button class="btn primary" id="import-csv-btn">
+                <i class="fas fa-file-csv"></i> Load CSV file
+              </button>
+              <input type="file" id="csvFile" accept=".csv" style="display:none">
+            </div>
 
-            <select id="loadDemoDataSample" name="sizeCalculation">
+            <div class="form-group">
+              <label>Try demo data</label>
+              <select id="loadDemoDataSample" class="select-control">
                 <option value="globe.csv" selected>Some cities (Small)</option>
                 <option value="country-capitals.csv">Capitals (Medium)</option>
                 <option value="worldcities10k.csv">10k Biggest cities (Large)</option>
-                
-            </select></p>
-          
-            <button style="display:block;width:120px; height:30px;" id='loadDemoData' title="Load selected DEMO data set"><i>Load this data</i></button>
-    
-            
-            <ul>
-                <div id='filename'></div>
-                <div id='filedataQty'></div>
-                <div id='fileStatus1'></div>
-                <div id='fileStatus2'></div>
-                <div id='fileStatus3'></div>
-                <div id='fileStatus4'></div>
-                <div id='fileStatus5'></div>
-                <div id='fileStatus6'></div>
-                <div id='fileStatus7'></div>
-                <div id='fileStatus8'></div>
-                <div id='fileStatus9'></div>
-                <div id='fileStatus10'></div>
-                <div id='fileStatus11'></div>
-                <div id='fileStatus12'></div>
-            </ul>
-        </div>
-
-
-        <div class="form-popup" id="dataLabels">
-            <button  class="close-button" type="button" onclick="closeDataLabels()">X</button>
-        	<h2 class="popup-header">Data Labels</h2>
-        	<br>
-        	<table>
-        	    <tr>
-        	        <th>Type</th>
-        	        <th>Id</th>
-        	        <th>Lbl 1</th>
-        	        <th>Lbl 2</th>
-        	        <th>Lbl 3</th>
-        	    </tr>
-        	    
-        	    <tr>
-                    <td>Color</td>
-                    <td><input id="labelColor1" name="labelColor1" value="#000000" size="1" data-jscolor="{}"/></td>
-                    <td><input id="labelColor2" name="labelColor2" value="#000000" size="1" data-jscolor="{}"/></td>
-                    <td><input id="labelColor3" name="labelColor3" value="#000000" size="1" data-jscolor="{}"/></td>
-                    <td><input id="labelColor4" name="labelColor4" value="#000000" size="1" data-jscolor="{}"/></td>
-        	    </tr>
-        	    <tr>
-                    <td>Size</td>
-                    <td>
-                        <select id="labelFontSize1" name="labelFontSize1">
-                            <option value="1">Small</option>
-                            <option selected value="2">Medium</option>
-                            <option value="3">Large</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select id="labelFontSize2" name="labelFontSize2">
-                            <option value="1">Small</option>
-                            <option selected value="2">Medium</option>
-                            <option value="3">Large</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select id="labelFontSize3" name="labelFontSize3">
-                            <option value="1">Small</option>
-                            <option selected value="2">Medium</option>
-                            <option value="3">Large</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select id="labelFontSize4" name="labelFontSize4">
-                            <option value="1">Small</option>
-                            <option selected value="2">Medium</option>
-                            <option value="3">Large</option>
-                        </select>
-                    </td>
-        	    </tr>
-        	    <tr>
-                    <td>Top of marker</td>
-                    <td><input id="labelTop1" name="labelTop1" type="checkbox" /></td>
-                    <td><input id="labelTop2" name="labelTop2" type="checkbox" /></td>
-                    <td><input id="labelTop3" name="labelTop3" type="checkbox" /></td>
-                    <td><input id="labelTop4" name="labelTop" type="checkbox" /></td>
-        	    </tr>
-        	    <tr>
-                    <td>On surface</td>   
-                    <td><input id="labelSurface1" name="labelSurface1" type="checkbox"/></td>
-                    <td><input id="labelSurface2" name="labelSurface2" type="checkbox" /></td>
-                    <td><input id="labelSurface3" name="labelSurface3" type="checkbox" /></td>
-                    <td><input id="labelSurface4" name="labelSurface" type="checkbox" /></td>
-        	    </tr>
-        	    <tr>
-                    <td>Vertical inside</td>  
-                    <td><input id="labelVertical1" name="labelVertical1" type="checkbox" /></td>
-                    <td><input id="labelVertical2" name="labelVertical2" type="checkbox" /></td>
-                    <td><input id="labelVertical3" name="labelVertical3" type="checkbox" /></td>
-                    <td><input id="labelVertical4" name="labelVertical" type="checkbox" /></td>
-                </tr>
-        	    <tr>
-                    <td>Vertical on top 1</td>   
-                    <td><input id="labelVerticalTop1" name="labelVerticalTop1" type="checkbox" /></td>
-                    <td><input id="labelVerticalTop2" name="labelVerticalTop11" type="checkbox" /></td>
-                    <td><input id="labelVerticalTop3" name="labelVerticalTop12" type="checkbox" /></td>
-                    <td><input id="labelVerticalTop4" name="labelVerticalTop13" type="checkbox" /></td>
-                </tr>
-        	    <tr>
-                    <td>Vertical on top 2</td>   
-                    <td><input id="labelVerticalTop5" name="labelVerticalTop2" type="checkbox" /></td>
-                    <td><input id="labelVerticalTop6" name="labelVerticalTop21" type="checkbox" /></td>
-                    <td><input id="labelVerticalTop7" name="labelVerticalTop22" type="checkbox" /></td>
-                    <td><input id="labelVerticalTop8" name="labelVerticalTop23" type="checkbox" /></td>
-                </tr>
-        	    <tr>
-                    <td>Like a sign</td>   
-                    <td><input id="labelSign1" name="labelSign1" type="checkbox" /></td>
-                    <td><input id="labelSign2" name="labelSign2" type="checkbox" /></td>
-                    <td><input id="labelSign3" name="labelSign3" type="checkbox" /></td>
-                    <td><input id="labelSign4" name="labelSign" type="checkbox" /></td>
-                </tr>
-        	    <tr>
-                    <td>Like a flag</td>   
-                    <td><input id="labelFlag1" name="labelFlag1" type="checkbox" /></td>
-                    <td><input id="labelFlag2" name="labelFlag2" type="checkbox" /></td>
-                    <td><input id="labelFlag3" name="labelFlag3" type="checkbox" /></td>
-                    <td><input id="labelFlag4" name="labelFlag" type="checkbox" /></td>
-                </tr>
-            </table>
-            <br>
-            <label>Label Rotation</label><br>
-            <select id="labelRotation" name="labelRotation">
-                <option selected value="-2">0</option>
-                <option value="-1.5">45</option>
-                <option value="-1">90</option>
-                <option value="-0.5">135</option>
-                <option value="0">180</option>
-                <option value="0.5">225</option>
-                <option value="1">270</option>
-                <option value="1.5">315</option>
-            </select>
-
-        </div>
-        
-        <div class="form-popup" id="dataMarkers">
-            <button  class="close-button" type="button" onclick="closeDataMarkers()">X</button>
-        	<h2 class="popup-header">Data Markers</h2>
-
-            <div class="tooltip">
-                <label>Marker Color:<br>
-                <span class="tooltiptext"><p>Select a color for all markers that does not have a data unique color.</p></span>
-            </div><br>
-            <input id="markerColor" name="markerColor" value="#000000" size="7" maxlength="7" data-jscolor="{}"/></label>
-            <br>
-            <label>Marker type</label>
-            <br>
-            <select id="markertype" name="markertype">
-                <option selected value="0">Line</option>
-                <option value="1">Cyliner</option>
-                <option value="2">Cone Up</option>
-                <option value="3">Cone Down (pin)</option>
-                <option value="4">Rectangle</option>
-                <option value="5">No Marker</option>
-            </select>
-            <br>
-            <div class="tooltip">
-                <label>Marker size</label>
-                <br>
-                <span class="tooltiptext"><p>Markersize do not change markers of Line-type</p></span>
+              </select>
+              <button class="btn secondary" id="loadDemoData">
+                <i class="fas fa-cloud-download-alt"></i> Load demo data
+              </button>
             </div>
-            <br>
-            <select id="markersize" name="markersize">
-                <option value="0.3">Thin</option>
-                <option selected value="2">Normal</option>
-                <option value="5">Thick</option>
-            </select>
-            <br>
-            <label>Max length</label>
-            <br>
-            <select id="markerheight" name="markerheight">
-                <option value="0.5">Short</option>
-                <option selected value="1">Normal</option>
-                <option value="3">Long</option>
-            </select>
-            <br>
-            <label><input id="transMarkers" name="transMarkers" type="checkbox" checked/>Semi-transparent markers</label>
->
-            
-		</div>   
+          </div>
 
-        <div class="form-popup" id="export">
-            <button  class="close-button" type="button" onclick="closeExport()">X</button>
-    		<h2 class="popup-header">Exporting</h2>
-            <fieldset>  
-                <legend>Export with animation:</legend>
-                <label><input id="option_animationX" name="trs" type="checkbox"/>Rotate around X</label><br>
-                <label><input id="option_animationY" name="trs" type="checkbox"/>Rotate around Y</label><br>
-                <label><input id="option_animationZ" name="trs" type="checkbox"/>Rotate around Z</label><br>
-			    <br>
-			    <label><input id="option_animation_dir" name="trs" type="checkbox"/>Change direction</label><br>
-			    <br>
-			    <label>Animation duration</label>
-                <select id="animDuration" name="animDuration">
-                    <option value="1">1 sec</option>
-                    <option value="5">5 sec</option>
-                    <option value="10">10 sec</option>
-                    <option value="15" selected>15 sec</option>
-                    <option value="30">30 sec</option>
-                    <option value="60">1 min</option>
-                    <option value="300">5 min</option>
-                    <option value="900">15 min</option>
-                    <option value="3600">1 hour</option>
+          <div class="import-status">
+            <div id="filename"></div>
+            <div id="filedataQty"></div>
+            <div id="fileStatus1"></div>
+            <div id="fileStatus2"></div>
+            <div id="fileStatus3"></div>
+          </div>
+        </section>
+
+        <!-- Appearance panel -->
+        <section id="appearance-panel" class="panel">
+          <h2>Appearance</h2>
+          
+          <div class="panel-section">
+            <h3>Globe Texture</h3>
+            <div class="form-group">
+              <label for="globetexture">Choose texture</label>
+              <select id="globetexture" class="select-control">
+                <option value="4k_clouds.jpg" selected>Light with clouds 4k</option>   
+                <option value="8k_ std.jpg">Light 8k</option>
+                <option value="2k_no_ice.jpg">Light with clouds 2k</option>
+                <option value="8k_clouds.jpg">Light with clouds 8k</option>
+                <option value="8k_no_ice.jpg">Light No Ice 8k</option>
+                <option value="8k_night.jpg">Dark Night 8k</option>
+                <option value="8k_dark_greys.jpg">Dark Greys 8k</option>
+                <option value="8k_dark_edges.jpg">Dark Edges 8k</option>
+                <option value="8k_dark_dark.jpg">Dark 8k</option>
+                <option value="8k_bw.jpg">Dark B/W 8k</option>
+                <option value="8k_pixl50.jpg">Light Pixelated 8k</option>
+                <option value="8k_painting.jpg">Light Painted 8k</option>
+                <option value="16k_clouds.jpg">Light with clouds 16k</option>
+                <option value="water_4k_invert.png">Just Landmass</option>
+                <option value="notexture">No Texture</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="materialSide">Texture location</label>
+              <select id="materialSide" class="select-control">
+                <option value="1" selected>Outside</option>
+                <option value="2">Both Sides</option>
+                <option value="3">Inside</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Sphere color</label>
+              <div class="color-picker-container">
+                <input type="color" id="SphereColor" value="#888888">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="UseSphereColor" name="UseSphereColor">
+                  <label for="UseSphereColor">Apply color</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <div class="checkbox-container">
+                <input type="checkbox" id="transEarth" name="transEarth">
+                <label for="transEarth">Semi-transparent Earth</label>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <div class="checkbox-container">
+                <input type="checkbox" id="bump" name="bump">
+                <label for="bump" class="tooltip">
+                  Simulate Altitudes
+                  <span class="tooltip-text">Simulated altitudes will not be exported in the 3D Globe object</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <div class="checkbox-container">
+                <input type="checkbox" id="reflSea" name="reflSea">
+                <label for="reflSea">Reflective water</label>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <div class="checkbox-container">
+                <input type="checkbox" id="reflLand" name="reflLand">
+                <label for="reflLand">Reflective land</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="panel-section">
+            <h3>Grid Settings</h3>
+            <div class="form-group">
+              <div class="checkbox-container">
+                <input type="checkbox" id="showGrid" name="showGrid">
+                <label for="showGrid">Show Grid</label>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="noOfGrids">Grid count</label>
+              <select id="noOfGrids" class="select-control">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="panel-section">
+            <h3>Background</h3>
+            <div class="form-group">
+              <label for="screenColor">Screen background color</label>
+              <input type="color" id="screenColor" value="#AAAAAA">
+            </div>
+          </div>
+        </section>
+
+        <!-- Markers panel -->
+        <section id="markers-panel" class="panel">
+          <h2>Data Markers</h2>
+          
+          <div class="form-group">
+            <label for="markerColor" class="tooltip">
+              Marker Color
+              <span class="tooltip-text">Select a color for all markers that do not have a unique data color</span>
+            </label>
+            <input type="color" id="markerColor" value="#000000">
+          </div>
+          
+          <div class="form-group">
+            <label for="markertype">Marker type</label>
+            <select id="markertype" class="select-control">
+              <option selected value="0">Line</option>
+              <option value="1">Cylinder</option>
+              <option value="2">Cone Up</option>
+              <option value="3">Cone Down (pin)</option>
+              <option value="4">Rectangle</option>
+              <option value="5">No Marker</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="markersize" class="tooltip">
+              Marker size
+              <span class="tooltip-text">Marker size does not change markers of Line-type</span>
+            </label>
+            <select id="markersize" class="select-control">
+              <option value="0.3">Thin</option>
+              <option selected value="2">Normal</option>
+              <option value="5">Thick</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="markerheight">Max length</label>
+            <select id="markerheight" class="select-control">
+              <option value="0.5">Short</option>
+              <option selected value="1">Normal</option>
+              <option value="3">Long</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <div class="checkbox-container">
+              <input type="checkbox" id="transMarkers" name="transMarkers" checked>
+              <label for="transMarkers">Semi-transparent markers</label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Labels panel -->
+        <section id="labels-panel" class="panel">
+          <h2>Data Labels</h2>
+          
+          <div class="panel-section">
+            <h3>Label Appearance</h3>
+            <div class="labels-grid">
+              <div class="label-header">Type</div>
+              <div class="label-header">ID</div>
+              <div class="label-header">Label 1</div>
+              <div class="label-header">Label 2</div>
+              <div class="label-header">Label 3</div>
+              
+              <div class="label-row">Color</div>
+              <div><input type="color" id="labelColor1" value="#000000"></div>
+              <div><input type="color" id="labelColor2" value="#000000"></div>
+              <div><input type="color" id="labelColor3" value="#000000"></div>
+              <div><input type="color" id="labelColor4" value="#000000"></div>
+              
+              <div class="label-row">Size</div>
+              <div>
+                <select id="labelFontSize1" class="select-control-sm">
+                  <option value="1">Small</option>
+                  <option selected value="2">Medium</option>
+                  <option value="3">Large</option>
                 </select>
-            </fieldset>         
-            <br>
-            <label>Export format</label>
-            <br>
-            <select id="exportFormat" name="exportFormat">
+              </div>
+              <div>
+                <select id="labelFontSize2" class="select-control-sm">
+                  <option value="1">Small</option>
+                  <option selected value="2">Medium</option>
+                  <option value="3">Large</option>
+                </select>
+              </div>
+              <div>
+                <select id="labelFontSize3" class="select-control-sm">
+                  <option value="1">Small</option>
+                  <option selected value="2">Medium</option>
+                  <option value="3">Large</option>
+                </select>
+              </div>
+              <div>
+                <select id="labelFontSize4" class="select-control-sm">
+                  <option value="1">Small</option>
+                  <option selected value="2">Medium</option>
+                  <option value="3">Large</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="panel-section">
+            <h3>Label Position</h3>
+            <div class="form-group">
+              <label>On top of marker</label>
+              <div class="checkbox-group">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelTop1">
+                  <label for="labelTop1">ID</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelTop2">
+                  <label for="labelTop2">Label 1</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelTop3">
+                  <label for="labelTop3">Label 2</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelTop4">
+                  <label for="labelTop4">Label 3</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>On surface</label>
+              <div class="checkbox-group">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelSurface1">
+                  <label for="labelSurface1">ID</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelSurface2">
+                  <label for="labelSurface2">Label 1</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelSurface3">
+                  <label for="labelSurface3">Label 2</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelSurface4">
+                  <label for="labelSurface4">Label 3</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Vertical inside</label>
+              <div class="checkbox-group">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVertical1">
+                  <label for="labelVertical1">ID</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVertical2">
+                  <label for="labelVertical2">Label 1</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVertical3">
+                  <label for="labelVertical3">Label 2</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVertical4">
+                  <label for="labelVertical4">Label 3</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Vertical on top 1</label>
+              <div class="checkbox-group">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVerticalTop1">
+                  <label for="labelVerticalTop1">ID</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVerticalTop2">
+                  <label for="labelVerticalTop2">Label 1</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVerticalTop3">
+                  <label for="labelVerticalTop3">Label 2</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVerticalTop4">
+                  <label for="labelVerticalTop4">Label 3</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Vertical on top 2</label>
+              <div class="checkbox-group">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVerticalTop5">
+                  <label for="labelVerticalTop5">ID</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVerticalTop6">
+                  <label for="labelVerticalTop6">Label 1</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVerticalTop7">
+                  <label for="labelVerticalTop7">Label 2</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelVerticalTop8">
+                  <label for="labelVerticalTop8">Label 3</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Like a sign</label>
+              <div class="checkbox-group">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelSign1">
+                  <label for="labelSign1">ID</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelSign2">
+                  <label for="labelSign2">Label 1</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelSign3">
+                  <label for="labelSign3">Label 2</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelSign4">
+                  <label for="labelSign4">Label 3</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Like a flag</label>
+              <div class="checkbox-group">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelFlag1">
+                  <label for="labelFlag1">ID</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelFlag2">
+                  <label for="labelFlag2">Label 1</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelFlag3">
+                  <label for="labelFlag3">Label 2</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="labelFlag4">
+                  <label for="labelFlag4">Label 3</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="panel-section">
+            <h3>Label Rotation</h3>
+            <div class="form-group">
+              <select id="labelRotation" class="select-control">
+                <option selected value="-2">0°</option>
+                <option value="-1.5">45°</option>
+                <option value="-1">90°</option>
+                <option value="-0.5">135°</option>
+                <option value="0">180°</option>
+                <option value="0.5">225°</option>
+                <option value="1">270°</option>
+                <option value="1.5">315°</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Selections panel -->
+        <section id="selections-panel" class="panel">
+          <h2>Selections</h2>
+          
+          <div class="panel-section">
+            <div class="btn-group">
+              <button class="btn secondary" id="unselectAll" disabled>
+                <i class="fas fa-times"></i> Clear selections
+              </button>
+              <button class="btn secondary" id="hideSelected" disabled>
+                <i class="fas fa-eye-slash"></i> Hide selected
+              </button>
+              <button class="btn secondary" id="hideExcluded" disabled>
+                <i class="fas fa-eye-slash"></i> Hide unselected
+              </button>
+              <button class="btn secondary" id="unHideAll">
+                <i class="fas fa-eye"></i> Unhide all
+              </button>
+            </div>
+          </div>
+          
+          <div class="panel-section">
+            <div id="selected" class="selection-display">
+              <p>No objects selected.</p>
+              <p>You select objects by double clicking on them.</p>
+              <p>Deselect by double clicking on a selected object.</p>
+            </div>
+          </div>
+          
+          <div class="panel-section">
+            <h3>Join Selections</h3>
+            <div class="form-group">
+              <div class="btn-group">
+                <button class="btn secondary" id="joinSelected" disabled>
+                  <i class="fas fa-link"></i> Join 2 selected
+                </button>
+                <button class="btn secondary" id="removeJoins">
+                  <i class="fas fa-unlink"></i> Remove joins
+                </button>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="joinType">Join Type</label>
+              <select id="joinType" class="select-control" disabled>
+                <option selected value="0">Data Point</option>
+                <option value="1">Earth Ground</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="arrowType">Arrow</label>
+              <select id="arrowType" class="select-control" disabled>
+                <option selected value="0">None</option>
+                <option value="1">1 to 2</option>
+                <option value="2">2 to 1</option>
+                <option value="3">2 to 2</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="selectedColor">Selected color</label>
+              <input type="color" id="selectedColor" value="#EFEFEF">
+            </div>
+          </div>
+        </section>
+
+        <!-- Export panel -->
+        <section id="export-panel" class="panel">
+          <h2>Export</h2>
+          
+          <div class="panel-section">
+            <h3>Animation</h3>
+            <div class="form-group">
+              <label>Rotation axis</label>
+              <div class="checkbox-group">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="option_animationX">
+                  <label for="option_animationX">X axis</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="option_animationY">
+                  <label for="option_animationY">Y axis</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="option_animationZ">
+                  <label for="option_animationZ">Z axis</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <div class="checkbox-container">
+                <input type="checkbox" id="option_animation_dir">
+                <label for="option_animation_dir">Change direction</label>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="animDuration">Animation duration</label>
+              <select id="animDuration" class="select-control">
+                <option value="1">1 sec</option>
+                <option value="5">5 sec</option>
+                <option value="10">10 sec</option>
+                <option value="15" selected>15 sec</option>
+                <option value="30">30 sec</option>
+                <option value="60">1 min</option>
+                <option value="300">5 min</option>
+                <option value="900">15 min</option>
+                <option value="3600">1 hour</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="panel-section">
+            <h3>Export Format</h3>
+            <div class="form-group">
+              <label for="exportFormat">Format</label>
+              <select id="exportFormat" class="select-control">
                 <option value="1">GLB (Binary)</option>
                 <option value="2">GLTF (Text)</option>
-            </select>
-            <br>
-		    <br>
-		    <label>Filename for saved object:</label><br>
-		    <input id="gltfFileName" name="gltfFileName" type="text" maxlength="25" value=""/>
-		    <br><br>
-		    <button style="width:120px; height:30px;" id="export_objects" title="Here you can save this object on your computer in GLB format.">Save 3D object</button>
-		    
-	    </div>
-	    
-	    <script>
-            function openImportData() {document.getElementById("importData").style.display = "block";}
-            function closeImportData() {document.getElementById("importData").style.display = "none";}	    
-	    
-            function openSaveLoadSettings() {document.getElementById("saveLoadSettings").style.display = "block";}
-            function closeSaveLoadSettings() {document.getElementById("saveLoadSettings").style.display = "none";}	    
-	   
-	        function openTextureSettings() {document.getElementById("textureSettings").style.display = "block";}
-	        function closeTextureSettings() {document.getElementById("textureSettings").style.display = "none";}
-	    
-	        function openOtherSettings() {document.getElementById("otherSettings").style.display = "block";}
-            function closeOtherSettings() {document.getElementById("otherSettings").style.display = "none";}
+              </select>
+            </div>
             
-            function openDataLabels() {document.getElementById("dataLabels").style.display = "block";}
-            function closeDataLabels() {document.getElementById("dataLabels").style.display = "none";}
-
-            function openDataMarkers() {document.getElementById("dataMarkers").style.display = "block";}
-            function closeDataMarkers() {document.getElementById("dataMarkers").style.display = "none";}
-
-            function openSelections() {document.getElementById("selections").style.display = "block";}
-            function closeSelections() {document.getElementById("selections").style.display = "none";}
+            <div class="form-group">
+              <label for="gltfFileName">Filename</label>
+              <input type="text" id="gltfFileName" class="text-input" maxlength="25" placeholder="Enter filename">
+            </div>
             
-            function openExport() {document.getElementById("export").style.display = "block";}
-            function closeExport() {document.getElementById("export").style.display = "none";}
-        </script>
-        
-	    <script src="./js/fileSaver.js"></script>
-        <script src="./js/jscolor.js"></script>
-        <script src="./js/CCapture.all.min.js"></script>
-        
-	    <script type="module" src="./js/globe.js"></script>
-	</body>
+            <div class="form-group">
+              <button class="btn primary" id="export_objects">
+                <i class="fas fa-download"></i> Save 3D object
+              </button>
+            </div>
+          </div>
+          
+          <div class="panel-section">
+            <h3>Save/Load Settings</h3>
+            <div class="form-group">
+              <label for="saveSettingsFileName">Settings filename</label>
+              <input type="text" id="saveSettingsFileName" class="text-input" maxlength="25" placeholder="Enter settings filename">
+            </div>
+            
+            <div class="form-group">
+              <div class="btn-group">
+                <button class="btn secondary" id="saveSettingsFile">
+                  <i class="fas fa-save"></i> Save settings
+                </button>
+                <button class="btn secondary" id="loadSettingsBtn">
+                  <i class="fas fa-folder-open"></i> Load settings
+                </button>
+                <input type="file" id="loadSettingsFile" accept=".settings" style="display:none">
+              </div>
+            </div>
+            
+            <div class="settings-status">
+              <div id="loadSettingsFileName"></div>
+              <div id="loadSettingsStatus1"></div>
+              <div id="loadSettingsStatus2"></div>
+              <div id="loadSettingsStatus3"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <!-- Toast notifications container -->
+    <div id="toast-container" class="toast-container"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./js/fileSaver.js"></script>
+  <script src="./js/CCapture.all.min.js"></script>
+  <script type="module" src="./js/globe.js"></script>
+</body>
 </html>
