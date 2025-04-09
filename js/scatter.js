@@ -1782,8 +1782,11 @@ function FindUniqueCombinations(data) {
         .map(f => `${f.shape} ${f.color}`)
         .filter((f, i, a) => a.indexOf(f) === i);
 
-    document.getElementById("fileStatus8").innerHTML = `<li>Number of unique shapes: ${uniqueShapes.length}</li>`;
-    document.getElementById("fileStatus9").innerHTML = `<li>Number of unique colors: ${uniqueColors.length}</li>`;
+    // Check if the element exists before setting its innerHTML
+    const fileStatus8 = document.getElementById("fileStatus8");
+    if (fileStatus8) {
+        fileStatus8.innerHTML = `<li>Number of unique shapes: ${uniqueShapes.length}, unique colors: ${uniqueColors.length}</li>`;
+    }
     
     data.forEach(p => p.colorId = uniqueColors.indexOf(p.color));
 }
