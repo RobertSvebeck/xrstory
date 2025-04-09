@@ -24,6 +24,10 @@ let clip, clipAction, mixer, clock;
 // GIF recording
 let capturer, recordingGIF = false, timerCapturer;
 
+// UI state
+let gridVisible = true;
+let labelsVisible = false;
+
 // Constants for 3D space
 const radius = 100;
 const latSegments = 18;
@@ -54,9 +58,11 @@ const maxDataLength = 20000;
 // ====== UI Management ======
 document.addEventListener('DOMContentLoaded', () => {
     setupThemeToggle();
-    setupTabNavigation();
+    setupUINavigation();
+    setupAccordions();
     setupEventListeners();
     setupRangeInputs();
+    setupPresets();
     init();
     animate();
 });
@@ -85,27 +91,185 @@ function setupThemeToggle() {
     });
 }
 
-function setupTabNavigation() {
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabPanels = document.querySelectorAll('.tab-panel');
+function setupUINavigation() {
+    // Primary navigation
+    const primaryNavBtns = document.querySelectorAll('.primary-nav .nav-btn');
+    const panels = document.querySelectorAll('.panel');
 
-    tabButtons.forEach(button => {
+    primaryNavBtns.forEach(button => {
         button.addEventListener('click', () => {
-            const tabId = button.getAttribute('data-tab');
+            const panelId = button.getAttribute('data-panel');
             
-            // Update active tab button
-            tabButtons.forEach(btn => btn.classList.remove('active'));
+            // Update active button
+            primaryNavBtns.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             
-            // Show corresponding tab panel
-            tabPanels.forEach(panel => {
+            // Show corresponding panel
+            panels.forEach(panel => {
                 panel.classList.remove('active');
-                if (panel.id === tabId) {
+                if (panel.id === panelId) {
                     panel.classList.add('active');
                 }
             });
         });
     });
+
+    // Secondary navigation (visualization panel)
+    const secondaryNavBtns = document.querySelectorAll('.secondary-nav .nav-btn');
+    const sections = document.querySelectorAll('.section');
+
+    secondaryNavBtns.forEach(button => {
+        button.addEventListener('click', () => {
+            const sectionId = button.getAttribute('data-section');
+            
+            // Update active button
+            secondaryNavBtns.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Show corresponding section
+            sections.forEach(section => {
+                section.classList.remove('active');
+                if (section.id === sectionId) {
+                    section.classList.add('active');
+                }
+            });
+        });
+    });
+}
+
+function setupAccordions() {
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+    
+    accordionHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+            const section = header.parentElement;
+            const isExpanded = section.classList.contains('expanded');
+            const toggleBtn = header.querySelector('.accordion-toggle i');
+            
+            if (isExpanded) {
+                section.classList.remove('expanded');
+                toggleBtn.className = 'fas fa-chevron-down';
+            } else {
+                section.classList.add('expanded');
+                toggleBtn.className = 'fas fa-chevron-up';
+            }
+        });
+    });
+}
+
+function setupPresets() {
+    document.getElementById('preset-scientific').addEventListener('click', applyScientificPreset);
+    document.getElementById('preset-presentation').addEventListener('click', applyPresentationPreset);
+    document.getElementById('preset-minimal').addEventListener('click', applyMinimalPreset);
+}
+
+function applyScientificPreset() {
+    // Background
+    document.getElementById('screenColor').value = '#000000';
+    renderer.setClearColor('#000000', 1);
+    
+    // Grid
+    document.getElementById('gridx1').checked = true;
+    document.getElementById('gridx2').checked = false;
+    document.getElementById('gridy1').checked = true;
+    document.getElementById('gridy2').checked = false;
+    document.getElementById('gridz1').checked = true;
+    document.getElementById('gridz2').checked = false;
+    document.getElementById('colorGridx').value = '#333333';
+    document.getElementById('colorGridy').value = '#333333';
+    document.getElementById('colorGridz').value = '#333333';
+    
+    // Data Points
+    document.getElementById('tranShape').checked = false;
+    document.getElementById('shapeSizeAdjustment').value = '1';
+    document.getElementById('idvalue').checked = true;
+    document.getElementById('labelContent').value = '1';
+    document.getElementById('labelFontSize').value = '1';
+    document.getElementById('colorId').value = '#FFFFFF';
+    
+    // Apply changes
+    DrawGrid();
+    DrawLabelObjects();
+    ChangeScatterMaterial();
+    DrawValues();
+    
+    showToast('Scientific preset applied', 'success');
+}
+
+function applyPresentationPreset() {
+    // Background
+    document.getElementById('screenColor').value = '#1A1A2E';
+    renderer.setClearColor('#1A1A2E', 1);
+    
+    // Grid
+    document.getElementById('gridx1').checked = true;
+    document.getElementById('gridx2').checked = false;
+    document.getElementById('gridy1').checked = true;
+    document.getElementById('gridy2').checked = false;
+    document.getElementById('gridz1').checked = true;
+    document.getElementById('gridz2').checked = false;
+    document.getElementById('colorGridx').value = '#FF6B6B';
+    document.getElementById('colorGridy').value = '#4ECDC4';
+    document.getElementById('colorGridz').value = '#FFD166';
+    
+    // Header/Footer
+    document.getElementById('ShowHeaderText').checked = true;
+    document.getElementById('headerText').value = 'Data Visualization';
+    document.getElementById('headerTextFontSize').value = '3';
+    document.getElementById('headerColor').value = '#FFFFFF';
+    document.getElementById('ShowFooterText').checked = true;
+    document.getElementById('footerText').value = 'www.yourcompany.com';
+    document.getElementById('footerTextFontSize').value = '2';
+    document.getElementById('footerColor').value = '#CCCCCC';
+    
+    // Data Points
+    document.getElementById('tranShape').checked = true;
+    document.getElementById('shapeSizeAdjustment').value = '2';
+    document.getElementById('idvalue').checked = false;
+    
+    // Apply changes
+    DrawGrid();
+    DrawLabelObjects();
+    DrawHeaderFooterText();
+    ChangeScatterMaterial();
+    DrawValues();
+    
+    showToast('Presentation preset applied', 'success');
+}
+
+function applyMinimalPreset() {
+    // Background
+    document.getElementById('screenColor').value = '#FFFFFF';
+    renderer.setClearColor('#FFFFFF', 1);
+    
+    // Grid
+    document.getElementById('gridx1').checked = true;
+    document.getElementById('gridx2').checked = false;
+    document.getElementById('gridy1').checked = false;
+    document.getElementById('gridy2').checked = false;
+    document.getElementById('gridz1').checked = false;
+    document.getElementById('gridz2').checked = false;
+    document.getElementById('colorGridx').value = '#E5E5E5';
+    document.getElementById('colorGridy').value = '#E5E5E5';
+    document.getElementById('colorGridz').value = '#E5E5E5';
+    
+    // Header/Footer
+    document.getElementById('ShowHeaderText').checked = false;
+    document.getElementById('ShowFooterText').checked = false;
+    
+    // Data Points
+    document.getElementById('tranShape').checked = false;
+    document.getElementById('shapeSizeAdjustment').value = '1';
+    document.getElementById('idvalue').checked = false;
+    
+    // Apply changes
+    DrawGrid();
+    DrawLabelObjects();
+    DrawHeaderFooterText();
+    ChangeScatterMaterial();
+    DrawValues();
+    
+    showToast('Minimal preset applied', 'success');
 }
 
 function setupRangeInputs() {
@@ -128,6 +292,18 @@ function setupEventListeners() {
     
     document.getElementById('load-settings-btn').addEventListener('click', () => {
         document.getElementById('loadSettingsFile').click();
+    });
+    
+    // Quick action buttons
+    document.getElementById('quickReset').addEventListener('click', resetView);
+    document.getElementById('quickToggleGrid').addEventListener('click', toggleGrid);
+    document.getElementById('quickToggleLabels').addEventListener('click', toggleLabels);
+    document.getElementById('quickUnselect').addEventListener('click', unselectAllScatters);
+    document.getElementById('quickHide').addEventListener('click', toggleAllVisibility);
+    
+    // Selected info panel close button
+    document.getElementById('closeSelectedInfo').addEventListener('click', () => {
+        document.getElementById('selectedInfo').style.display = 'none';
     });
     
     // Connect standard UI events
@@ -290,6 +466,66 @@ function setupEventListeners() {
     
     // Window resize event
     window.addEventListener('resize', onWindowResize);
+}
+
+// ====== Quick Action Functions ======
+function toggleGrid() {
+    gridVisible = !gridVisible;
+    gridGroup.visible = gridVisible;
+    
+    // Update button appearance
+    const icon = document.getElementById('quickToggleGrid').querySelector('i');
+    icon.className = gridVisible ? 'fas fa-border-all' : 'fas fa-square';
+    
+    showToast(gridVisible ? 'Grid shown' : 'Grid hidden', 'info');
+}
+
+function toggleLabels() {
+    labelsVisible = !labelsVisible;
+    document.getElementById('idvalue').checked = labelsVisible;
+    DrawValues();
+    
+    // Update button appearance
+    const icon = document.getElementById('quickToggleLabels').querySelector('i');
+    icon.className = labelsVisible ? 'fas fa-tags' : 'fas fa-tag-slash';
+    
+    showToast(labelsVisible ? 'Labels shown' : 'Labels hidden', 'info');
+}
+
+function toggleAllVisibility() {
+    // Check if any objects are hidden
+    let anyHidden = false;
+    scatterGroup.traverse(function(obj) {
+        if (obj.name === 'data' && !obj.visible) {
+            anyHidden = true;
+        }
+    });
+    
+    if (anyHidden) {
+        unHideAll();
+    } else {
+        // Hide all but selected objects
+        const selectedCount = getSelectedCount();
+        if (selectedCount > 0) {
+            hideExcludedScatters();
+        } else {
+            showToast('Select objects first, or all objects will be hidden', 'warning');
+        }
+    }
+    
+    // Update button appearance
+    const icon = document.getElementById('quickHide').querySelector('i');
+    icon.className = anyHidden ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+function getSelectedCount() {
+    let count = 0;
+    scatterGroup.traverse(function(obj) {
+        if (obj.name === 'Wireframe') {
+            count++;
+        }
+    });
+    return count;
 }
 
 // ====== Toast Notifications ======
@@ -627,6 +863,9 @@ function setSelectionButtonStates(selectionCount) {
     document.getElementById('joinSelected').disabled = !hasTwoSelections;
     document.getElementById('joinType').disabled = !hasTwoSelections;
     document.getElementById('joinArrow').disabled = !hasTwoSelections;
+    
+    // Also update quick action button states
+    document.getElementById('quickUnselect').disabled = !hasSelections;
 }
 
 // ====== Selection Actions ======
@@ -764,6 +1003,9 @@ function hideSelectedScatters() {
     
     unselectAllScatters();
     DrawValues();
+
+    // Update the hide/show icon state
+    document.getElementById('quickHide').querySelector('i').className = 'fas fa-eye';
     
     showToast(`Hidden ${count} selected objects`, 'info');
 }
@@ -787,6 +1029,9 @@ function hideExcludedScatters() {
     
     unselectAllScatters();
     DrawValues();
+
+    // Update the hide/show icon state
+    document.getElementById('quickHide').querySelector('i').className = 'fas fa-eye';
     
     showToast(`Hidden ${count} unselected objects`, 'info');
 }
@@ -809,6 +1054,9 @@ function unHideAll() {
     }
     
     DrawValues();
+
+    // Update the hide/show icon state
+    document.getElementById('quickHide').querySelector('i').className = 'fas fa-eye-slash';
     
     showToast(`Revealed ${count} hidden objects`, 'info');
 }
@@ -1684,8 +1932,8 @@ function verifyData(data) {
             document.getElementById('saveSettingsFileName').value = importFileName + '-settings';
         }
         
-        // Switch to the "Grid" tab after data is loaded
-        document.querySelector('.tab-btn[data-tab="grid"]').click();
+        // Switch to the Visualization panel after data is loaded
+        document.querySelector('.primary-nav .nav-btn[data-panel="visual-panel"]').click();
         
         showToast('Data processed successfully', 'success');
     } else {

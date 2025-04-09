@@ -40,6 +40,25 @@
             <!-- 3D canvas container -->
             <div id="canvas-container" class="canvas-container"></div>
             
+            <!-- Quick action buttons -->
+            <div class="quick-actions">
+                <button id="quickReset" class="btn-round" title="Reset view">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button id="quickToggleGrid" class="btn-round" title="Toggle grid">
+                    <i class="fas fa-border-all"></i>
+                </button>
+                <button id="quickToggleLabels" class="btn-round" title="Toggle labels">
+                    <i class="fas fa-tags"></i>
+                </button>
+                <button id="quickUnselect" class="btn-round" title="Clear selection">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button id="quickHide" class="btn-round" title="Hide/Show all">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            
             <!-- Recording status -->
             <div id="recordingStatus" class="recording-status">Recording in progress...</div>
             
@@ -48,723 +67,825 @@
             
             <!-- Selected objects info -->
             <div id="selectedInfo" class="selected-info">
-                <h3>Selected Objects</h3>
+                <div class="panel-header">
+                    <h3>Selected Objects</h3>
+                    <button id="closeSelectedInfo" class="btn-icon">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
                 <div id="selected">No objects selected. Double-click on objects to select them.</div>
+                <div class="selection-actions">
+                    <button id="unselectAll" class="btn" disabled>
+                        <i class="fas fa-times-circle"></i> Clear
+                    </button>
+                    <button id="hideSelected" class="btn" disabled>
+                        <i class="fas fa-eye-slash"></i> Hide
+                    </button>
+                    <button id="hideExcluded" class="btn" disabled>
+                        <i class="fas fa-filter"></i> Hide Others
+                    </button>
+                </div>
             </div>
         </main>
 
         <!-- Sidebar with all controls -->
         <aside class="sidebar">
-            <!-- Tab navigation -->
-            <nav class="tab-nav">
-                <button class="tab-btn active" data-tab="import">
-                    <i class="fas fa-file-import"></i> Import
+            <!-- Primary Navigation -->
+            <nav class="primary-nav">
+                <button class="nav-btn active" data-panel="data-panel">
+                    <i class="fas fa-database"></i> Data
                 </button>
-                <button class="tab-btn" data-tab="appearance">
-                    <i class="fas fa-palette"></i> Appearance
+                <button class="nav-btn" data-panel="visual-panel">
+                    <i class="fas fa-palette"></i> Visualization
                 </button>
-                <button class="tab-btn" data-tab="grid">
-                    <i class="fas fa-border-all"></i> Grid
-                </button>
-                <button class="tab-btn" data-tab="axis">
-                    <i class="fas fa-arrows-alt"></i> Axis
-                </button>
-                <button class="tab-btn" data-tab="data">
-                    <i class="fas fa-chart-scatter"></i> Data
-                </button>
-                <button class="tab-btn" data-tab="selection">
-                    <i class="fas fa-mouse-pointer"></i> Selection
-                </button>
-                <button class="tab-btn" data-tab="export">
-                    <i class="fas fa-file-export"></i> Export
+                <button class="nav-btn" data-panel="interact-panel">
+                    <i class="fas fa-mouse-pointer"></i> Interaction
                 </button>
             </nav>
 
-            <!-- Tab content panels -->
-            <div class="tab-content">
-                <!-- Import Data Tab -->
-                <div id="import" class="tab-panel active">
-                    <h2>Import Data</h2>
-                    
-                    <section class="control-section">
-                        <h3>Data Settings</h3>
-                        <div class="form-group">
-                            <label for="sizeCalculation">Size calculation</label>
-                            <select id="sizeCalculation" class="form-control">
-                                <option value="1">1 Dimension (Length)</option>
-                                <option value="2">2 Dimensions (Area)</option>
-                                <option value="3" selected>3 Dimensions (Volume)</option>
-                            </select>
-                            <small class="form-text">Defines how the size measure is applied.</small>
+            <!-- Panels Container -->
+            <div class="panels-container">
+                <!-- 1. DATA PANEL -->
+                <div id="data-panel" class="panel active">
+                    <!-- Import Section -->
+                    <div class="accordion-section expanded">
+                        <div class="accordion-header">
+                            <h3><i class="fas fa-file-import"></i> Import Data</h3>
+                            <button class="accordion-toggle"><i class="fas fa-chevron-up"></i></button>
                         </div>
-
-                        <div class="form-group">
-                            <label for="shapeColor">Default color</label>
-                            <div class="color-picker-container">
-                                <input type="color" id="shapeColor" value="#FFFFFF" class="form-control color-picker">
+                        <div class="accordion-content">
+                            <div class="form-group">
+                                <button id="import-btn" class="btn btn-primary">
+                                    <i class="fas fa-file-csv"></i> Import CSV File
+                                </button>
+                                <input type="file" id="csvFile" accept=".csv" hidden>
+                                <small class="form-text">
+                                    <a href="https://xrstory.io/scatter-chart" target="_blank">Read about the file format</a>
+                                </small>
                             </div>
-                            <small class="form-text">Used when color data is missing.</small>
-                        </div>
 
-                        <div class="form-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="normalize" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Normalize data</span>
-                            </label>
-                            <small class="form-text">Normalizes data to suitable scales (set before loading).</small>
-                        </div>
-                    </section>
+                            <div class="form-group">
+                                <label for="loadDemoDataSample">Try demo data</label>
+                                <div class="input-with-button">
+                                    <select id="loadDemoDataSample" class="form-control">
+                                        <option value="scatter.csv" selected>Small Sample</option>
+                                        <option value="gartner2021.csv">Medium Sample</option>
+                                        <option value="Dry_Bean_Dataset1.csv">Large Sample</option>
+                                    </select>
+                                    <button id="loadDemoData" class="btn">Load</button>
+                                </div>
+                            </div>
 
-                    <section class="control-section">
-                        <h3>Import File</h3>
-                        <div class="form-group">
-                            <button id="import-btn" class="btn btn-primary">
-                                <i class="fas fa-file-csv"></i> Import CSV File
-                            </button>
-                            <input type="file" id="csvFile" accept=".csv" hidden>
-                            <small class="form-text">
-                                <a href="https://xrstory.io/scatter-chart" target="_blank">Read about the file format</a>
-                            </small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="loadDemoDataSample">Try demo data</label>
-                            <select id="loadDemoDataSample" class="form-control">
-                                <option value="scatter.csv" selected>Small Sample</option>
-                                <option value="gartner2021.csv">Medium Sample</option>
-                                <option value="Dry_Bean_Dataset1.csv">Large Sample</option>
-                            </select>
-                            <button id="loadDemoData" class="btn">Load Demo Data</button>
-                        </div>
-                    </section>
-
-                    <section class="control-section">
-                        <h3>Import Status</h3>
-                        <div id="import-status" class="status-container">
-                            <div id="filename"></div>
-                            <div id="filedataQty"></div>
-                            <div id="fileStatus1"></div>
-                            <div id="fileStatus2"></div>
-                            <div id="fileStatus3"></div>
-                            <div id="fileStatus4"></div>
-                            <div id="fileStatus5"></div>
-                            <div id="fileStatus6"></div>
-                            <div id="fileStatus7"></div>
-                            <div id="fileStatus8"></div>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Appearance Tab -->
-                <div id="appearance" class="tab-panel">
-                    <h2>Appearance</h2>
-                    
-                    <section class="control-section">
-                        <h3>General Settings</h3>
-                        <div class="form-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="autoRescaling">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Auto-rescaling</span>
-                            </label>
-                            <small class="form-text">Automatically reposition objects when some are hidden.</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="screenColor">Background color</label>
-                            <div class="color-picker-container">
-                                <input type="color" id="screenColor" value="#343434" class="form-control color-picker">
+                            <div class="status-container">
+                                <div id="filename"></div>
+                                <div id="filedataQty"></div>
+                                <div id="fileStatus1"></div>
+                                <div id="fileStatus2"></div>
+                                <div id="fileStatus3"></div>
+                                <div id="fileStatus4"></div>
+                                <div id="fileStatus5"></div>
+                                <div id="fileStatus6"></div>
+                                <div id="fileStatus7"></div>
+                                <div id="fileStatus8"></div>
                             </div>
                         </div>
-                    </section>
+                    </div>
 
-                    <section class="control-section">
-                        <h3>Header Text</h3>
-                        <div class="form-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="ShowHeaderText" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Show header text</span>
-                            </label>
+                    <!-- Data Settings Section -->
+                    <div class="accordion-section">
+                        <div class="accordion-header">
+                            <h3><i class="fas fa-sliders-h"></i> Data Settings</h3>
+                            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
                         </div>
-
-                        <div class="form-group">
-                            <label for="headerText">Header text</label>
-                            <input type="text" id="headerText" class="form-control" maxlength="40">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="headerTextFontSize">Font size</label>
-                            <select id="headerTextFontSize" class="form-control">
-                                <option value="1">Small</option>
-                                <option value="2" selected>Medium</option>
-                                <option value="3">Large</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="headerColor">Text color</label>
-                            <div class="color-picker-container">
-                                <input type="color" id="headerColor" value="#AAAAAA" class="form-control color-picker">
+                        <div class="accordion-content">
+                            <div class="form-group">
+                                <label for="sizeCalculation">Size calculation</label>
+                                <select id="sizeCalculation" class="form-control">
+                                    <option value="1">1 Dimension (Length)</option>
+                                    <option value="2">2 Dimensions (Area)</option>
+                                    <option value="3" selected>3 Dimensions (Volume)</option>
+                                </select>
+                                <small class="form-text">Defines how the size measure is applied.</small>
                             </div>
-                        </div>
-                    </section>
 
-                    <section class="control-section">
-                        <h3>Footer Text</h3>
-                        <div class="form-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="ShowFooterText" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Show footer text</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="footerText">Footer text</label>
-                            <input type="text" id="footerText" class="form-control" maxlength="40">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="footerTextFontSize">Font size</label>
-                            <select id="footerTextFontSize" class="form-control">
-                                <option value="1">Small</option>
-                                <option value="2" selected>Medium</option>
-                                <option value="3">Large</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="footerColor">Text color</label>
-                            <div class="color-picker-container">
-                                <input type="color" id="footerColor" value="#AAAAAA" class="form-control color-picker">
+                            <div class="form-group">
+                                <label for="shapeColor">Default color</label>
+                                <div class="color-picker-container">
+                                    <input type="color" id="shapeColor" value="#FFFFFF" class="form-control color-picker">
+                                </div>
+                                <small class="form-text">Used when color data is missing.</small>
                             </div>
-                        </div>
-                    </section>
-                </div>
 
-                <!-- Grid Tab -->
-                <div id="grid" class="tab-panel">
-                    <h2>Grid Settings</h2>
-                    
-                    <section class="control-section">
-                        <h3>X-Z Grid (Horizontal)</h3>
-                        <div class="form-group grid-toggle-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="gridx1" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Bottom grid</span>
-                            </label>
-                            
-                            <label class="toggle-container">
-                                <input type="checkbox" id="gridx2">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Top grid</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="colorGridx">Grid color</label>
-                            <div class="color-picker-container">
-                                <input type="color" id="colorGridx" value="#FF5555" class="form-control color-picker">
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="control-section">
-                        <h3>X-Y Grid (Vertical)</h3>
-                        <div class="form-group grid-toggle-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="gridy1" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Back grid</span>
-                            </label>
-                            
-                            <label class="toggle-container">
-                                <input type="checkbox" id="gridy2">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Front grid</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="colorGridy">Grid color</label>
-                            <div class="color-picker-container">
-                                <input type="color" id="colorGridy" value="#55FF55" class="form-control color-picker">
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="control-section">
-                        <h3>Y-Z Grid (Vertical)</h3>
-                        <div class="form-group grid-toggle-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="gridz1" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Left grid</span>
-                            </label>
-                            
-                            <label class="toggle-container">
-                                <input type="checkbox" id="gridz2">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Right grid</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="colorGridz">Grid color</label>
-                            <div class="color-picker-container">
-                                <input type="color" id="colorGridz" value="#5555FF" class="form-control color-picker">
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="control-section">
-                        <div class="form-group">
-                            <button id="rescaleGrids" class="btn btn-primary">
-                                <i class="fas fa-compress-alt"></i> Rescale Grids
-                            </button>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Axis Tab -->
-                <div id="axis" class="tab-panel">
-                    <h2>Axis Settings</h2>
-                    
-                    <section class="control-section">
-                        <h3>Axis Labels</h3>
-                        
-                        <div class="form-group">
-                            <label for="xaxis">X-Axis Label</label>
-                            <input type="text" id="xaxis" class="form-control" maxlength="35">
-                        </div>
-                        
-                        <div class="form-group axis-toggle-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="yeslabelsx1" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Bottom label</span>
-                            </label>
-                            
-                            <label class="toggle-container">
-                                <input type="checkbox" id="yeslabelsx2">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Top label</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="yaxis">Y-Axis Label</label>
-                            <input type="text" id="yaxis" class="form-control" maxlength="35">
-                        </div>
-                        
-                        <div class="form-group axis-toggle-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="yeslabelsy1" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Back label</span>
-                            </label>
-                            
-                            <label class="toggle-container">
-                                <input type="checkbox" id="yeslabelsy2">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Front label</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="zaxis">Z-Axis Label</label>
-                            <input type="text" id="zaxis" class="form-control" maxlength="35">
-                        </div>
-                        
-                        <div class="form-group axis-toggle-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="yeslabelsz1" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Left label</span>
-                            </label>
-                            
-                            <label class="toggle-container">
-                                <input type="checkbox" id="yeslabelsz2">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Right label</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="labelsFontSize">Label font size</label>
-                            <select id="labelsFontSize" class="form-control">
-                                <option value="1">Small</option>
-                                <option value="2" selected>Medium</option>
-                                <option value="3">Large</option>
-                            </select>
-                        </div>
-                    </section>
-
-                    <section class="control-section">
-                        <h3>Axis Values</h3>
-                        
-                        <div class="form-group">
-                            <h4>X-Axis Values</h4>
-                            <div class="axis-toggle-group">
+                            <div class="form-group">
                                 <label class="toggle-container">
-                                    <input type="checkbox" id="valuesx1" checked>
+                                    <input type="checkbox" id="normalize" checked>
                                     <span class="toggle-slider"></span>
-                                    <span class="toggle-label">Bottom values</span>
+                                    <span class="toggle-label">Normalize data</span>
                                 </label>
+                                <small class="form-text">Normalizes data to suitable scales (set before loading).</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="toggle-container">
+                                    <input type="checkbox" id="autoRescaling">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Auto-rescaling</span>
+                                </label>
+                                <small class="form-text">Automatically reposition objects when some are hidden.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <button id="rescaleGrids" class="btn btn-primary">
+                                    <i class="fas fa-compress-alt"></i> Rescale Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Section -->
+                    <div class="accordion-section">
+                        <div class="accordion-header">
+                            <h3><i class="fas fa-file-export"></i> Export</h3>
+                            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                        </div>
+                        <div class="accordion-content">
+                            <!-- Settings Export -->
+                            <div class="form-group">
+                                <label for="saveSettingsFileName">Settings filename</label>
+                                <div class="input-with-button">
+                                    <input type="text" id="saveSettingsFileName" class="form-control" maxlength="25">
+                                    <button id="saveSettingsFile" class="btn">
+                                        <i class="fas fa-save"></i> Save
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn" id="load-settings-btn">
+                                    <i class="fas fa-file-upload"></i> Load Settings
+                                </button>
+                                <input type="file" id="loadSettingsFile" accept=".settings" hidden>
+                            </div>
+
+                            <div id="settings-status" class="status-container">
+                                <div id="loadSettingsFileName"></div>
+                                <div id="loadSettingsStatus1"></div>
+                                <div id="loadSettingsStatus2"></div>
+                                <div id="loadSettingsStatus3"></div>
+                            </div>
+
+                            <!-- 3D Model Export -->
+                            <div class="form-group">
+                                <label for="exportFormat">3D Model Format</label>
+                                <select id="exportFormat" class="form-control">
+                                    <option value="1">GLB (Binary)</option>
+                                    <option value="2">GLTF (Text)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gltfFileName">3D Model Filename</label>
+                                <input type="text" id="gltfFileName" class="form-control" maxlength="35">
+                            </div>
+
+                            <div class="form-group">
+                                <button id="export_objects" class="btn btn-primary">
+                                    <i class="fas fa-file-export"></i> Export 3D Model
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. VISUALIZATION PANEL -->
+                <div id="visual-panel" class="panel">
+                    <!-- Secondary Navigation for Visualization -->
+                    <nav class="secondary-nav">
+                        <button class="nav-btn active" data-section="appearance-section">
+                            <i class="fas fa-fill-drip"></i> Appearance
+                        </button>
+                        <button class="nav-btn" data-section="points-section">
+                            <i class="fas fa-chart-scatter"></i> Data Points
+                        </button>
+                        <button class="nav-btn" data-section="grid-section">
+                            <i class="fas fa-border-all"></i> Grid & Axes
+                        </button>
+                    </nav>
+
+                    <!-- 2.1 Appearance Section -->
+                    <div id="appearance-section" class="section active">
+                        <!-- Background -->
+                        <div class="accordion-section expanded">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-fill"></i> Background</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-up"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group">
+                                    <label for="screenColor">Background color</label>
+                                    <div class="color-picker-container">
+                                        <input type="color" id="screenColor" value="#343434" class="form-control color-picker">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Header Text -->
+                        <div class="accordion-section">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-heading"></i> Header Text</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="ShowHeaderText" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Show header text</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="headerText">Header text</label>
+                                    <input type="text" id="headerText" class="form-control" maxlength="40">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="headerTextFontSize">Font size</label>
+                                    <select id="headerTextFontSize" class="form-control">
+                                        <option value="1">Small</option>
+                                        <option value="2" selected>Medium</option>
+                                        <option value="3">Large</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="headerColor">Text color</label>
+                                    <div class="color-picker-container">
+                                        <input type="color" id="headerColor" value="#AAAAAA" class="form-control color-picker">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Text -->
+                        <div class="accordion-section">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-paragraph"></i> Footer Text</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="ShowFooterText" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Show footer text</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="footerText">Footer text</label>
+                                    <input type="text" id="footerText" class="form-control" maxlength="40">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="footerTextFontSize">Font size</label>
+                                    <select id="footerTextFontSize" class="form-control">
+                                        <option value="1">Small</option>
+                                        <option value="2" selected>Medium</option>
+                                        <option value="3">Large</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="footerColor">Text color</label>
+                                    <div class="color-picker-container">
+                                        <input type="color" id="footerColor" value="#AAAAAA" class="form-control color-picker">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2.2 Data Points Section -->
+                    <div id="points-section" class="section">
+                        <!-- Display Options -->
+                        <div class="accordion-section expanded">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-cube"></i> Display Options</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-up"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="plotShape" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Show shapes</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="tranShape" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Transparent shapes</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="shapeSizeAdjustment">Size adjustment</label>
+                                    <select id="shapeSizeAdjustment" class="form-control">
+                                        <option value="0">Small</option>
+                                        <option value="1" selected>Medium</option>
+                                        <option value="2">Large</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Labels -->
+                        <div class="accordion-section">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-tags"></i> Labels</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="idvalue">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Show data labels</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="labelContent">Label content</label>
+                                    <select id="labelContent" class="form-control">
+                                        <option value="1">ID</option>
+                                        <option value="2">X-value</option>
+                                        <option value="3">Y-Value</option>
+                                        <option value="4">Z-Value</option>
+                                        <option value="5">Size</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="labelFontSize">Font size</label>
+                                    <select id="labelFontSize" class="form-control">
+                                        <option selected value="1">Small</option>
+                                        <option value="2">Medium</option>
+                                        <option value="3">Large</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="labelRotation">Rotation</label>
+                                    <select id="labelRotation" class="form-control">
+                                        <option value="x">X-axis</option>
+                                        <option value="y" selected>Y-axis</option>
+                                        <option value="z">Z-axis</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="labelPosition">Position</label>
+                                    <select id="labelPosition" class="form-control">
+                                        <option value="1">Inside</option>
+                                        <option value="2" selected>Above</option>
+                                        <option value="3">Below</option>
+                                        <option value="4">Side</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="colorId">Label color</label>
+                                    <div class="color-picker-container">
+                                        <input type="color" id="colorId" value="#FFFFFF" class="form-control color-picker">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Connections -->
+                        <div class="accordion-section">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-link"></i> Connections</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group">
+                                    <button id="joinSelected" class="btn" disabled>
+                                        <i class="fas fa-link"></i> Connect Selected
+                                    </button>
+                                    <button id="removeJoins" class="btn">
+                                        <i class="fas fa-unlink"></i> Remove All
+                                    </button>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="joinType">Connection type</label>
+                                    <select id="joinType" class="form-control" disabled>
+                                        <option selected value="0">Straight Line</option>
+                                        <option value="1">Curved Line</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="joinArrow">Direction</label>
+                                    <select id="joinArrow" class="form-control" disabled>
+                                        <option selected value="0">No Arrow</option>
+                                        <option value="1">Arrow 1→2</option>
+                                        <option value="2">Arrow 2→1</option>
+                                        <option value="3">Bidirectional</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2.3 Grid & Axes Section -->
+                    <div id="grid-section" class="section">
+                        <!-- X-Z Grid (Horizontal) -->
+                        <div class="accordion-section expanded">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-grip-horizontal"></i> X-Z Grid (Horizontal)</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-up"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group grid-toggle-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="gridx1" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Bottom grid</span>
+                                    </label>
+                                    
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="gridx2">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Top grid</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="colorGridx">Grid color</label>
+                                    <div class="color-picker-container">
+                                        <input type="color" id="colorGridx" value="#FF5555" class="form-control color-picker">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- X-Y Grid (Vertical) -->
+                        <div class="accordion-section">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-grip-vertical"></i> X-Y Grid (Vertical)</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group grid-toggle-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="gridy1" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Back grid</span>
+                                    </label>
+                                    
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="gridy2">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Front grid</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="colorGridy">Grid color</label>
+                                    <div class="color-picker-container">
+                                        <input type="color" id="colorGridy" value="#55FF55" class="form-control color-picker">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Y-Z Grid (Vertical) -->
+                        <div class="accordion-section">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-th"></i> Y-Z Grid (Vertical)</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group grid-toggle-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="gridz1" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Left grid</span>
+                                    </label>
+                                    
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="gridz2">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Right grid</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="colorGridz">Grid color</label>
+                                    <div class="color-picker-container">
+                                        <input type="color" id="colorGridz" value="#5555FF" class="form-control color-picker">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Axis Labels -->
+                        <div class="accordion-section">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-arrows-alt"></i> Axis Labels</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group">
+                                    <label for="xaxis">X-Axis Label</label>
+                                    <input type="text" id="xaxis" class="form-control" maxlength="35">
+                                </div>
                                 
-                                <label class="toggle-container">
-                                    <input type="checkbox" id="valuesx2">
-                                    <span class="toggle-slider"></span>
-                                    <span class="toggle-label">Top values</span>
-                                </label>
-                            </div>
-                            
-                            <label for="axisXdecimals">Decimal places</label>
-                            <select id="axisXdecimals" class="form-control">
-                                <option selected value="1">0</option>
-                                <option value="10">1</option>
-                                <option value="100">2</option>
-                                <option value="1000">3</option>
-                                <option value="10000">4</option>
-                            </select>
-                        </div>
+                                <div class="form-group axis-toggle-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="yeslabelsx1" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Bottom label</span>
+                                    </label>
+                                    
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="yeslabelsx2">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Top label</span>
+                                    </label>
+                                </div>
 
-                        <div class="form-group">
-                            <h4>Y-Axis Values</h4>
-                            <div class="axis-toggle-group">
-                                <label class="toggle-container">
-                                    <input type="checkbox" id="valuesy1" checked>
-                                    <span class="toggle-slider"></span>
-                                    <span class="toggle-label">Back values</span>
-                                </label>
+                                <div class="form-group">
+                                    <label for="yaxis">Y-Axis Label</label>
+                                    <input type="text" id="yaxis" class="form-control" maxlength="35">
+                                </div>
                                 
-                                <label class="toggle-container">
-                                    <input type="checkbox" id="valuesy2">
-                                    <span class="toggle-slider"></span>
-                                    <span class="toggle-label">Front values</span>
-                                </label>
-                            </div>
-                            
-                            <label for="axisYdecimals">Decimal places</label>
-                            <select id="axisYdecimals" class="form-control">
-                                <option selected value="1">0</option>
-                                <option value="10">1</option>
-                                <option value="100">2</option>
-                                <option value="1000">3</option>
-                                <option value="10000">4</option>
-                            </select>
-                        </div>
+                                <div class="form-group axis-toggle-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="yeslabelsy1" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Back label</span>
+                                    </label>
+                                    
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="yeslabelsy2">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Front label</span>
+                                    </label>
+                                </div>
 
-                        <div class="form-group">
-                            <h4>Z-Axis Values</h4>
-                            <div class="axis-toggle-group">
-                                <label class="toggle-container">
-                                    <input type="checkbox" id="valuesz1" checked>
-                                    <span class="toggle-slider"></span>
-                                    <span class="toggle-label">Left values</span>
-                                </label>
+                                <div class="form-group">
+                                    <label for="zaxis">Z-Axis Label</label>
+                                    <input type="text" id="zaxis" class="form-control" maxlength="35">
+                                </div>
                                 
+                                <div class="form-group axis-toggle-group">
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="yeslabelsz1" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Left label</span>
+                                    </label>
+                                    
+                                    <label class="toggle-container">
+                                        <input type="checkbox" id="yeslabelsz2">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">Right label</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="labelsFontSize">Label font size</label>
+                                    <select id="labelsFontSize" class="form-control">
+                                        <option value="1">Small</option>
+                                        <option value="2" selected>Medium</option>
+                                        <option value="3">Large</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Axis Values -->
+                        <div class="accordion-section">
+                            <div class="accordion-header">
+                                <h3><i class="fas fa-sort-numeric-down"></i> Axis Values</h3>
+                                <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="form-group">
+                                    <h4>X-Axis Values</h4>
+                                    <div class="axis-toggle-group">
+                                        <label class="toggle-container">
+                                            <input type="checkbox" id="valuesx1" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-label">Bottom values</span>
+                                        </label>
+                                        
+                                        <label class="toggle-container">
+                                            <input type="checkbox" id="valuesx2">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-label">Top values</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <label for="axisXdecimals">Decimal places</label>
+                                    <select id="axisXdecimals" class="form-control">
+                                        <option selected value="1">0</option>
+                                        <option value="10">1</option>
+                                        <option value="100">2</option>
+                                        <option value="1000">3</option>
+                                        <option value="10000">4</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <h4>Y-Axis Values</h4>
+                                    <div class="axis-toggle-group">
+                                        <label class="toggle-container">
+                                            <input type="checkbox" id="valuesy1" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-label">Back values</span>
+                                        </label>
+                                        
+                                        <label class="toggle-container">
+                                            <input type="checkbox" id="valuesy2">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-label">Front values</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <label for="axisYdecimals">Decimal places</label>
+                                    <select id="axisYdecimals" class="form-control">
+                                        <option selected value="1">0</option>
+                                        <option value="10">1</option>
+                                        <option value="100">2</option>
+                                        <option value="1000">3</option>
+                                        <option value="10000">4</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <h4>Z-Axis Values</h4>
+                                    <div class="axis-toggle-group">
+                                        <label class="toggle-container">
+                                            <input type="checkbox" id="valuesz1" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-label">Left values</span>
+                                        </label>
+                                        
+                                        <label class="toggle-container">
+                                            <input type="checkbox" id="valuesz2">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-label">Right values</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <label for="axisZdecimals">Decimal places</label>
+                                    <select id="axisZdecimals" class="form-control">
+                                        <option selected value="1">0</option>
+                                        <option value="10">1</option>
+                                        <option value="100">2</option>
+                                        <option value="1000">3</option>
+                                        <option value="10000">4</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="axisValuesFontSize">Values font size</label>
+                                    <select id="axisValuesFontSize" class="form-control">
+                                        <option selected value="1">Small</option>
+                                        <option value="2">Medium</option>
+                                        <option value="3">Large</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. INTERACTION PANEL -->
+                <div id="interact-panel" class="panel">
+                    <!-- Selection Tools -->
+                    <div class="accordion-section expanded">
+                        <div class="accordion-header">
+                            <h3><i class="fas fa-mouse-pointer"></i> Selection Tools</h3>
+                            <button class="accordion-toggle"><i class="fas fa-chevron-up"></i></button>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="form-group">
+                                <label>Select all with same:</label>
+                                <div class="btn-group">
+                                    <button id="selectShape" class="btn" disabled>
+                                        <i class="fas fa-cube"></i> Shape
+                                    </button>
+                                    <button id="selectColor" class="btn" disabled>
+                                        <i class="fas fa-palette"></i> Color
+                                    </button>
+                                    <button id="selectSize" class="btn" disabled>
+                                        <i class="fas fa-arrows-alt"></i> Size
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sizeTolerance">Size tolerance (±%)</label>
+                                <input type="range" id="sizeTolerance" class="form-range" min="0" max="100" value="0">
+                                <span id="sizeToleranceValue">0%</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="selectedColor">Selection highlight color</label>
+                                <div class="color-picker-container">
+                                    <input type="color" id="selectedColor" value="#EFEFEF" class="form-control color-picker">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button id="unHideAll" class="btn">
+                                    <i class="fas fa-eye"></i> Show All Objects
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Animation -->
+                    <div class="accordion-section">
+                        <div class="accordion-header">
+                            <h3><i class="fas fa-film"></i> Animation</h3>
+                            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="form-group">
+                                <label>Rotation axis</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="option_animationX">
+                                        <span class="checkbox-label">X axis</span>
+                                    </label>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="option_animationY">
+                                        <span class="checkbox-label">Y axis</span>
+                                    </label>
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="option_animationZ">
+                                        <span class="checkbox-label">Z axis</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label class="toggle-container">
-                                    <input type="checkbox" id="valuesz2">
+                                    <input type="checkbox" id="option_animation_dir">
                                     <span class="toggle-slider"></span>
-                                    <span class="toggle-label">Right values</span>
+                                    <span class="toggle-label">Reverse direction</span>
                                 </label>
                             </div>
-                            
-                            <label for="axisZdecimals">Decimal places</label>
-                            <select id="axisZdecimals" class="form-control">
-                                <option selected value="1">0</option>
-                                <option value="10">1</option>
-                                <option value="100">2</option>
-                                <option value="1000">3</option>
-                                <option value="10000">4</option>
-                            </select>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="axisValuesFontSize">Values font size</label>
-                            <select id="axisValuesFontSize" class="form-control">
-                                <option selected value="1">Small</option>
-                                <option value="2">Medium</option>
-                                <option value="3">Large</option>
-                            </select>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Data Points Tab -->
-                <div id="data" class="tab-panel">
-                    <h2>Data Points</h2>
-                    
-                    <section class="control-section">
-                        <h3>Display Options</h3>
-                        <div class="form-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="plotShape" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Show shapes</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="tranShape" checked>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Transparent shapes</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="shapeSizeAdjustment">Size adjustment</label>
-                            <select id="shapeSizeAdjustment" class="form-control">
-                                <option value="0">Small</option>
-                                <option value="1" selected>Medium</option>
-                                <option value="2">Large</option>
-                            </select>
-                        </div>
-                    </section>
-
-                    <section class="control-section">
-                        <h3>Labels</h3>
-                        <div class="form-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="idvalue">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Show data labels</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="labelContent">Label content</label>
-                            <select id="labelContent" class="form-control">
-                                <option value="1">ID</option>
-                                <option value="2">X-value</option>
-                                <option value="3">Y-Value</option>
-                                <option value="4">Z-Value</option>
-                                <option value="5">Size</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="labelFontSize">Font size</label>
-                            <select id="labelFontSize" class="form-control">
-                                <option selected value="1">Small</option>
-                                <option value="2">Medium</option>
-                                <option value="3">Large</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="labelRotation">Rotation</label>
-                            <select id="labelRotation" class="form-control">
-                                <option value="x">X-axis</option>
-                                <option value="y" selected>Y-axis</option>
-                                <option value="z">Z-axis</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="labelPosition">Position</label>
-                            <select id="labelPosition" class="form-control">
-                                <option value="1">Inside</option>
-                                <option value="2" selected>Above</option>
-                                <option value="3">Below</option>
-                                <option value="4">Side</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="colorId">Label color</label>
-                            <div class="color-picker-container">
-                                <input type="color" id="colorId" value="#FFFFFF" class="form-control color-picker">
+                            <div class="form-group">
+                                <label for="animDuration">Duration</label>
+                                <select id="animDuration" class="form-control">
+                                    <option value="1">1 second</option>
+                                    <option value="5">5 seconds</option>
+                                    <option value="10">10 seconds</option>
+                                    <option value="15" selected>15 seconds</option>
+                                    <option value="30">30 seconds</option>
+                                    <option value="60">1 minute</option>
+                                    <option value="300">5 minutes</option>
+                                    <option value="900">15 minutes</option>
+                                    <option value="3600">1 hour</option>
+                                </select>
                             </div>
                         </div>
-                    </section>
-                </div>
+                    </div>
 
-                <!-- Selection Tab -->
-                <div id="selection" class="tab-panel">
-                    <h2>Selection Tools</h2>
-                    
-                    <section class="control-section">
-                        <h3>Selection Actions</h3>
-                        <div class="btn-group">
-                            <button id="unselectAll" class="btn" disabled>
-                                <i class="fas fa-times-circle"></i> Clear Selections
-                            </button>
-                            <button id="hideSelected" class="btn" disabled>
-                                <i class="fas fa-eye-slash"></i> Hide Selected
-                            </button>
-                            <button id="hideExcluded" class="btn" disabled>
-                                <i class="fas fa-filter"></i> Hide Unselected
-                            </button>
-                            <button id="unHideAll" class="btn">
-                                <i class="fas fa-eye"></i> Show All
-                            </button>
+                    <!-- Presets -->
+                    <div class="accordion-section">
+                        <div class="accordion-header">
+                            <h3><i class="fas fa-star"></i> Presets</h3>
+                            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
                         </div>
-                    </section>
-
-                    <section class="control-section">
-                        <h3>Bulk Selection</h3>
-                        <div class="form-group">
-                            <label>Select all with same:</label>
-                            <div class="btn-group">
-                                <button id="selectShape" class="btn" disabled>
-                                    <i class="fas fa-cube"></i> Shape
-                                </button>
-                                <button id="selectColor" class="btn" disabled>
-                                    <i class="fas fa-palette"></i> Color
-                                </button>
-                                <button id="selectSize" class="btn" disabled>
-                                    <i class="fas fa-arrows-alt"></i> Size
-                                </button>
+                        <div class="accordion-content">
+                            <div class="form-group">
+                                <div class="preset-buttons">
+                                    <button id="preset-scientific" class="btn">
+                                        <i class="fas fa-flask"></i> Scientific
+                                    </button>
+                                    <button id="preset-presentation" class="btn">
+                                        <i class="fas fa-tv"></i> Presentation
+                                    </button>
+                                    <button id="preset-minimal" class="btn">
+                                        <i class="fas fa-minus"></i> Minimal
+                                    </button>
+                                </div>
+                                <small class="form-text">Quick preset configurations for common use cases.</small>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="sizeTolerance">Size tolerance (±%)</label>
-                            <input type="range" id="sizeTolerance" class="form-range" min="0" max="100" value="0">
-                            <span id="sizeToleranceValue">0%</span>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="selectedColor">Selection highlight color</label>
-                            <div class="color-picker-container">
-                                <input type="color" id="selectedColor" value="#EFEFEF" class="form-control color-picker">
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="control-section">
-                        <h3>Join Objects</h3>
-                        <div class="form-group">
-                            <button id="joinSelected" class="btn" disabled>
-                                <i class="fas fa-link"></i> Join Selected
-                            </button>
-                            <button id="removeJoins" class="btn">
-                                <i class="fas fa-unlink"></i> Remove All Joins
-                            </button>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="joinType">Join type</label>
-                            <select id="joinType" class="form-control" disabled>
-                                <option selected value="0">Straight Line</option>
-                                <option value="1">Curved Line</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="joinArrow">Direction</label>
-                            <select id="joinArrow" class="form-control" disabled>
-                                <option selected value="0">No Arrow</option>
-                                <option value="1">Arrow 1→2</option>
-                                <option value="2">Arrow 2→1</option>
-                                <option value="3">Bidirectional</option>
-                            </select>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Export Tab -->
-                <div id="export" class="tab-panel">
-                    <h2>Export Options</h2>
-                    
-                    <section class="control-section">
-                        <h3>Settings</h3>
-                        <div class="form-group">
-                            <label for="saveSettingsFileName">Settings filename</label>
-                            <div class="input-with-button">
-                                <input type="text" id="saveSettingsFileName" class="form-control" maxlength="25">
-                                <button id="saveSettingsFile" class="btn">
-                                    <i class="fas fa-save"></i> Save
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <button class="btn" id="load-settings-btn">
-                                <i class="fas fa-file-upload"></i> Load Settings
-                            </button>
-                            <input type="file" id="loadSettingsFile" accept=".settings" hidden>
-                        </div>
-
-                        <div id="settings-status" class="status-container">
-                            <div id="loadSettingsFileName"></div>
-                            <div id="loadSettingsStatus1"></div>
-                            <div id="loadSettingsStatus2"></div>
-                            <div id="loadSettingsStatus3"></div>
-                        </div>
-                    </section>
-
-                    <section class="control-section">
-                        <h3>Animation</h3>
-                        <div class="form-group">
-                            <label>Rotation axis</label>
-                            <div class="checkbox-group">
-                                <label class="checkbox-container">
-                                    <input type="checkbox" id="option_animationX">
-                                    <span class="checkbox-label">X axis</span>
-                                </label>
-                                <label class="checkbox-container">
-                                    <input type="checkbox" id="option_animationY">
-                                    <span class="checkbox-label">Y axis</span>
-                                </label>
-                                <label class="checkbox-container">
-                                    <input type="checkbox" id="option_animationZ">
-                                    <span class="checkbox-label">Z axis</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="option_animation_dir">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Reverse direction</span>
-                            </label>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="animDuration">Duration</label>
-                            <select id="animDuration" class="form-control">
-                                <option value="1">1 second</option>
-                                <option value="5">5 seconds</option>
-                                <option value="10">10 seconds</option>
-                                <option value="15" selected>15 seconds</option>
-                                <option value="30">30 seconds</option>
-                                <option value="60">1 minute</option>
-                                <option value="300">5 minutes</option>
-                                <option value="900">15 minutes</option>
-                                <option value="3600">1 hour</option>
-                            </select>
-                        </div>
-                    </section>
-
-                    <section class="control-section">
-                        <h3>3D Model Export</h3>
-                        <div class="form-group">
-                            <label for="exportFormat">Format</label>
-                            <select id="exportFormat" class="form-control">
-                                <option value="1">GLB (Binary)</option>
-                                <option value="2">GLTF (Text)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="gltfFileName">Filename</label>
-                            <input type="text" id="gltfFileName" class="form-control" maxlength="35">
-                        </div>
-
-                        <div class="form-group">
-                            <button id="export_objects" class="btn btn-primary">
-                                <i class="fas fa-file-export"></i> Export 3D Model
-                            </button>
-                        </div>
-                    </section>
+                    </div>
                 </div>
             </div>
         </aside>
