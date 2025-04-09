@@ -911,7 +911,7 @@ function animate() {
 
   controls.update();
   IntersectionControl();
-  onWindowResize();
+  //onWindowResize();
   renderer.render(scene, camera);
 
   if (capturer) {
@@ -1016,16 +1016,24 @@ function resetView() {
 
 // ===== Actions =====
 function ondblclick(event) {
-  if (intersects.length > 0) {
-    const obj = intersects[0].object;
-
-    if (obj.children.length == 0) {
-      CreateSelection(obj);
-    } else {
-      obj.remove(...obj.children);
-    }
-
-    DisplaySelectionInfo();
+  // Calculate pointer position from this specific event
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  
+  // Recalculate raycasting for precise click position
+  raycaster.setFromCamera(pointer, camera);
+  const clickIntersects = raycaster.intersectObjects(markerGroup.children, false);
+  
+  if (clickIntersects.length > 0) {
+      const obj = clickIntersects[0].object;
+      
+      if (obj.children.length == 0) {
+          CreateSelection(obj);
+      } else {
+          obj.remove(...obj.children);
+      }
+      
+      DisplaySelectionInfo();
   }
 }
 
