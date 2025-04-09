@@ -21,7 +21,6 @@ const exportBtn = document.getElementById('export_objects');
 document.addEventListener('DOMContentLoaded', () => {
     setupThemeToggle();
     setupTabs();
-    setupMobileUI();
     initializeScene();
     setupEventListeners();
 });
@@ -67,15 +66,6 @@ function setupTabs() {
             });
         });
     });
-}
-
-// Mobile UI setup
-function setupMobileUI() {
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-        });
-    }
 }
 
 // Main scene initialization

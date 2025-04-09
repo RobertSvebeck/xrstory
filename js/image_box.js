@@ -106,7 +106,7 @@ function setupEventListeners() {
     
     // Window resize
     window.addEventListener('resize', onWindowResize);
-}
+} 
 
 function showToast(message) {
     const toastContainer = document.getElementById('toast-container');
