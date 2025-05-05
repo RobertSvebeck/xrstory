@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XRStory 3D Visualization Toolkit</title>
+    <link rel="shortcut icon" type="image/png" href="./img/favicon.png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3a86ff;
+            --secondary-color: #8338ec;
+            --text-color: #333;
+            --bg-color: #f9f9f9;
+            --card-bg: #fff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --hover-color: #f0f0f0;
+            --header-color: #2d2d2d;
+            --header-text: white;
+            --footer-color: #2d2d2d;
+            --footer-text: white;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #4895ef;
+            --secondary-color: #9d4edd;
+            --text-color: #f0f0f0;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --hover-color: #2a2a2a;
+            --header-color: #121212;
+            --header-text: #f0f0f0;
+            --footer-color: #121212;
+            --footer-text: #f0f0f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        header {
+            background-color: var(--header-color);
+            color: var(--header-text);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            background: transparent;
+            border: none;
+            color: var(--header-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .intro h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .intro p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 20px var(--shadow-color);
+        }
+
+        .tool-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.5s ease;
+        }
+
+        .tool-card:hover .tool-image {
+            transform: scale(1.05);
+        }
+
+        .tool-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .tool-content p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .tool-link {
+            display: inline-block;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            text-align: center;
+        }
+
+        .tool-link:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        footer {
+            background-color: var(--footer-color);
+            color: var(--footer-text);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--footer-text);
+            margin: 0 1rem;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .theme-toggle {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>XRStory 3D Visualization Toolkit</h1>
+        <button class="theme-toggle" id="theme-toggle" title="Toggle dark/light theme">
+            <i class="fas fa-moon"></i>
+        </button>
+    </header>
+
+    <div class="container">
+        <div class="intro">
+            <h2>Create interactive 3D visualizations with ease</h2>
+            <p>A collection of web-based tools for creating 3D models, data visualizations, and exportable content. Choose a tool below to get started!</p>
+        </div>
+
+        <div class="tools-grid">
+            <div class="tool-card">
+                <div class="tool-image" style="background-image: url('./img/globe-preview.jpg'); background-color: #3a86ff;"></div>
+                <div class="tool-content">
+                    <h3>3D Globe Chart</h3>
+                    <p>Create interactive globes with geographical data markers. Import CSV data to visualize global information on a 3D Earth model.</p>
+                    <a href="globe.html" class="tool-link">Open Tool</a>
+                </div>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-image" style="background-image: url('./img/stone-preview.jpg'); background-color: #8338ec;"></div>
+                <div class="tool-content">
+                    <h3>3D Stone Logo Generator</h3>
+                    <p>Transform your logo or image into a unique 3D stone object with customizable shape and appearance.</p>
+                    <a href="stone_logo.html" class="tool-link">Open Tool</a>
+                </div>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-image" style="background-image: url('./img/box-preview.jpg'); background-color: #ff006e;"></div>
+                <div class="tool-content">
+                    <h3>3D Image Box</h3>
+                    <p>Create a six-sided box with your images applied to any combination of faces with customizable effects.</p>
+                    <a href="image_box.html" class="tool-link">Open Tool</a>
+                </div>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-image" style="background-image: url('./img/sphere-preview.jpg'); background-color: #fb5607;"></div>
+                <div class="tool-content">
+                    <h3>3D Image Sphere</h3>
+                    <p>Apply your images to a spherical surface. Perfect for creating globes, planets, or spherical displays.</p>
+                    <a href="image_sphere.html" class="tool-link">Open Tool</a>
+                </div>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-image" style="background-image: url('./img/scatter-preview.jpg'); background-color: #ffbe0b;"></div>
+                <div class="tool-content">
+                    <h3>3D Scatter Chart</h3>
+                    <p>Visualize multidimensional data in 3D space. Import CSV data for interactive scatter plots with customizable appearance.</p>
+                    <a href="scatter.html" class="tool-link">Open Tool</a>
+                </div>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-image" style="background-image: url('./img/text-preview.jpg'); background-color: #3a86ff;"></div>
+                <div class="tool-content">
+                    <h3>3D Text Creator</h3>
+                    <p>Create three-dimensional text with customizable fonts, extrusion depth, and materials for logos and 3D typography.</p>
+                    <a href="text.html" class="tool-link">Open Tool</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 XRStory 3D Visualization Toolkit. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="https://xrstory.io/" target="_blank">Visit Website</a>
+            <a href="mailto:info@xrstory.io">Contact Us</a>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const icon = themeToggle.querySelector('i');
+        
+        // Check for saved theme preference or use device preference
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.body.setAttribute('data-theme', 'dark');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            if (document.body.getAttribute('data-theme') === 'dark') {
+                document.body.removeAttribute('data-theme');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
+</body>
+</html>
